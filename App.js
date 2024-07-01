@@ -7,6 +7,8 @@ import BaseScreen from './Screens/BaseScreen';
 import RegisterScreen from './Screens/RegisterScreen';
 import LoginScreen from './Screens/LoginScreen';
 import ProfileScreen from './Screens/ProfileScreen';
+import FindChats from './Screens/Home/FindChats';
+import ChatDetails from './Screens/Home/ChatDetails';
 
 const Stack = createNativeStackNavigator();
 const isLoggedIn = true;
@@ -16,22 +18,35 @@ export default function App() {
     <NavigationContainer>
       <Stack.Navigator>
         {isLoggedIn ? (
-          <Stack.Group name='home-decendants'
-          screenOptions={{ headerShown: false }}
-          >
-            <Stack.Screen name="Home" component={HomeBase} />
-            <Stack.Screen name="Profile" component={ProfileScreen} />
+          <Stack.Group name='home-decendants'>
+            <Stack.Screen name="Home" options={{ headerShown: false }} component={HomeBase} />
+            <Stack.Screen name="Profile" options={{ headerShown: false }} component={ProfileScreen} />
+            <Stack.Screen name='Chat Details' options={{ headerShown: true }} component={ChatDetails} />
           </Stack.Group>
         ) : (
-          <Stack.Group 
+          <Stack.Group
             name='before-login'
             screenOptions={{ headerShown: false }}
-          > 
+          >
             <Stack.Screen name="GetStarted" component={BaseScreen} />
             <Stack.Screen name="Register" component={RegisterScreen} />
             <Stack.Screen name="Login" component={LoginScreen} />
           </Stack.Group>
         )}
+        <Stack.Screen
+          name="Find-User"
+          options={{
+            headerShown: true,
+            title: 'Search Users',
+            headerStyle: {
+              height: 56, // Adjust the height as needed
+            },
+            headerTitleStyle: {
+              fontSize: 16, // Adjust the font size as needed
+            },
+          }}
+          component={FindChats}
+        />
       </Stack.Navigator>
     </NavigationContainer>
   );

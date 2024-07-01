@@ -7,6 +7,7 @@ import HomeScreen from './Tabs/HomeScreen';
 import ExploreScreen from './Tabs/ExploreScreen';
 import FeedScreen from './Tabs/FeedScreen';
 import SettingsScreen from './Tabs/SettingsScreen';
+import Colors from '../../constants/Colors';
 
 const Tab = createBottomTabNavigator();
 
@@ -30,11 +31,11 @@ const HomeBase = () => {
                         // You can return any component that you like here!
                         return <Ionicons name={iconName} size={30} color={color} />;
                     },
-                    tabBarActiveTintColor: 'tomato',
+                    tabBarActiveTintColor: Colors.primary_color,
                     tabBarInactiveTintColor: 'gray',
                 })}
             >
-                <Tab.Screen name="Home" options={{ title: 'Chats' }} component={HomeScreen} />
+                <Tab.Screen name="Home" options={{ title: 'Cloud Chat' }} component={HomeScreen} />
                 <Tab.Screen name="Explore" component={ExploreScreen} />
                 {/* <Tab.Screen name="Feed" component={FeedScreen} /> */}
                 <Tab.Screen name="Settings" component={SettingsScreen} />
