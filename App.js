@@ -25,7 +25,7 @@ export default function App() {
           <Stack.Group name='home-decendants'>
             <Stack.Screen name="Home" options={{ headerShown: false }} component={HomeBase} />
             <Stack.Screen name="Profile" options={{ headerShown: false }} component={ProfileScreen} />
-            <Stack.Screen name='Chat Details' options={{ headerShown: true }} component={ChatDetails} />
+            <Stack.Screen name='Chat-Details' options={{ headerShown: true }} component={ChatDetails} />
           </Stack.Group>
         ) : (
           <Stack.Group

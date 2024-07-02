@@ -1,57 +1,96 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, FlatList, Text} from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { Searchbar } from 'react-native-paper';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, FlatList, Text } from 'react-native';
+import { Searchbar } from 'react-native-paper'
+import { ActivityIndicator } from 'react-native';
+import { initializeApp } from "firebase/app";
+import { getFirestore, doc, onSnapshot, collection } from "firebase/firestore";
+import { firebaseConfig } from '../../Configs/firebase';
+
 import AccountBar from '../../Components/AccountBar';
-const FindChats = () => {
+import Colors from '../../constants/Colors';
+
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+
+const FindChats = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
-  const [results, setResults] = useState([]);
+  const [allUsers, setAllUsers] = useState([])
+  const [filteredUsers, setFilteredUsers] = useState([])
+  const [isLoading, setIsLoading] = useState(true)
 
-  const handleFilter = () => {
-    // Implement your filtering logic here
-    console.log('Filtering');
+  const handleSearch = (query) => {
+    setSearchQuery(query);
+    filterUsers(query);
   };
 
-  const renderItem = ({ item }) => (
-    <AccountBar uri={item.uri} onPress={() => {}} user={'@' + item.username}>
-      {item.bio}
-    </AccountBar>
-  );
-
-  const generateData = () => {
-    const data = [];
-    for (let i = 1; i <= 20; i++) {
-      data.push({
-        id: i,
-        username: `user${i}`,
-        bio: `This is the bio for user${i}`,
-        uri: `https://i.pravatar.cc/150?img=${i}`
+  const filterUsers = (query) => {
+    if (query.length > 0 && allUsers && allUsers.length > 0) {
+      const filteredData = allUsers.filter((item) => {
+        return (
+          item.username && 
+          item.username.trim().toLowerCase().includes(query.trim().toLowerCase())
+        );
       });
-    }
-    setResults(data);
+      setFilteredUsers(filteredData);
+    } 
   };
 
-  React.useEffect(() => {
-    generateData();
+  const renderItem = ({ item }) => {
+    if (!item || !item.username || !item.bio) {
+      return null; // Return null to skip rendering the item
+    }
+  
+    return (
+      <AccountBar
+        avatarUrl={item.avatarUrl || "https://i.pravatar.cc/150?img=3"}
+        onPress={() => {
+          alert(`${item.username}-pressed`);
+        }}
+        username={`@${item.username}`}
+        bio={item.bio}
+      />
+    );
+  };
+
+  useEffect(() => {
+    setIsLoading(true)
+    const unsub = onSnapshot(collection(db, "users"), (snapshot) => {
+      const users = [];
+      snapshot.docs.forEach((doc) => {
+        users.push(doc.data());
+      });
+      setAllUsers(users);
+      setFilteredUsers(users);
+      setIsLoading(false)
+    });
+    return () => unsub();
   }, []);
 
   return (
     <View style={styles.container}>
       <Searchbar
         placeholder="Search"
-        onChangeText={setSearchQuery}
+        onChangeText={handleSearch}
         value={searchQuery}
-        style={{marginHorizontal:3, marginVertical:8}}
+        style={{ marginHorizontal: 3, marginVertical: 8, backgroundColor: '#e5ecec' }}
       />
-      <View>
-        
-      </View>
       <View style={styles.contentContainer}>
-        <FlatList
-          data={results}
-          renderItem={renderItem}
-          keyExtractor={(item) => item.id.toString()}
-        />
+        {isLoading ? (
+          <ActivityIndicator size={40} color={Colors.primary_color} />
+        ) : (
+          filteredUsers && filteredUsers.length > 0 ? (
+            <FlatList
+              data={filteredUsers}
+              renderItem={renderItem}
+              keyExtractor={(item) => item.email}
+              contentContainerStyle={styles.flatListContainer}
+            />
+          ) : (
+            <Text>No users found.</Text>
+          )
+        )}
       </View>
     </View>
   );
@@ -63,6 +102,11 @@ const styles = StyleSheet.create({
     backgroundColor: 'white',
   },
   contentContainer: {
+    flex: 1,
+  },
+  flatListContainer: {
+    flexGrow: 1,
+    paddingBottom: 16,
   },
 });
 

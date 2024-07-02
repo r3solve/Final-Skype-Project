@@ -10,8 +10,8 @@ const HomeScreen = ({navigation}) => {
     <>
     <Provider>
       <View style={styles.container}>
-        <Text style={styles.textStyle}>Home Screen</Text>
-        <ChatBar></ChatBar>
+        <ChatBar username={"John Doe"} avatarUrl={'https://i.pravatar.cc/150?img=3'} lastMessage={'How can i help'} ></ChatBar>
+        
         <FAB
           icon="message"
           style={styles.fab}
@@ -29,7 +29,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: Colors.background_color
   },
   textStyle: {
     fontSize: 24,

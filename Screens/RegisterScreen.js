@@ -24,7 +24,6 @@ import { firebaseConfig } from '../Configs/firebase';
 
 firebase.initializeApp(firebaseConfig);
 
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app)
 const auth = getAuth(app)
