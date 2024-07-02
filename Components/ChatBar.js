@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
-const NewUser = () => {
+const ChatBar = () => {
     return (
         <View>
             
@@ -11,4 +11,4 @@ const NewUser = () => {
 
 const styles = StyleSheet.create({})
 
-export default NewUser;
+export default ChatBar;

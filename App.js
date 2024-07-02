@@ -2,6 +2,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 import { SafeAreaView, StyleSheet, Text, View } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+
+import Ionicons from 'react-native-vector-icons/Ionicons';
+
 import HomeBase from './Screens/Home/HomeBase';
 import BaseScreen from './Screens/BaseScreen';
 import RegisterScreen from './Screens/RegisterScreen';
@@ -9,11 +12,12 @@ import LoginScreen from './Screens/LoginScreen';
 import ProfileScreen from './Screens/ProfileScreen';
 import FindChats from './Screens/Home/FindChats';
 import ChatDetails from './Screens/Home/ChatDetails';
+import { useUserStore } from './store/UserDataStore';
 
 const Stack = createNativeStackNavigator();
-const isLoggedIn = true;
 
 export default function App() {
+  const { isLoggedIn, setUserState } = useUserStore()
   return (
     <NavigationContainer>
       <Stack.Navigator>
@@ -28,7 +32,7 @@ export default function App() {
             name='before-login'
             screenOptions={{ headerShown: false }}
           >
-            <Stack.Screen name="GetStarted" component={BaseScreen} />
+            <Stack.Screen name="Get-Started" component={BaseScreen} />
             <Stack.Screen name="Register" component={RegisterScreen} />
             <Stack.Screen name="Login" component={LoginScreen} />
           </Stack.Group>

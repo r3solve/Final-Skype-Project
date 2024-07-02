@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -11,7 +11,7 @@ import Colors from '../../constants/Colors';
 
 const Tab = createBottomTabNavigator();
 
-const HomeBase = () => {
+const HomeBase = ({navigation}) => {
     return (
             <Tab.Navigator
                 screenOptions={({ route }) => ({
@@ -35,7 +35,11 @@ const HomeBase = () => {
                     tabBarInactiveTintColor: 'gray',
                 })}
             >
-                <Tab.Screen name="Home" options={{ title: 'Cloud Chat' }} component={HomeScreen} />
+                <Tab.Screen name="Home" options={{ title: 'Cloud Chat', headerRight:() => (<>
+                    <TouchableOpacity onPress={()=> navigation.navigate("Find-User")} >
+                        <Ionicons style={{paddingHorizontal:12}} name='person-add-outline' size={30} ></Ionicons>
+                    </TouchableOpacity>
+                    </>) }} component={HomeScreen} />
                 <Tab.Screen name="Explore" component={ExploreScreen} />
                 {/* <Tab.Screen name="Feed" component={FeedScreen} /> */}
                 <Tab.Screen name="Settings" component={SettingsScreen} />
