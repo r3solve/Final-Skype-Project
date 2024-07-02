@@ -1,5 +1,15 @@
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, Text, FlatList, ActivityIndicator, TouchableOpacity, Linking } from 'react-native';
+import { StyleSheet, 
+    View, 
+    Text, 
+    FlatList, 
+    ActivityIndicator, 
+    TouchableOpacity,
+    Image, 
+    Linking } from 'react-native';
+import Colors from '../../../constants/Colors';
+
 
 const KEY = '54c178ac258b494e80a70895aef90bc8';
 
@@ -16,6 +26,7 @@ const ExploreScreen = () => {
             const response = await fetch(`https://newsapi.org/v2/top-headlines?country=us&apiKey=${KEY}`);
             const data = await response.json();
             setArticles(data.articles);
+            console.log(articles)
             setLoading(false);
         } catch (error) {
             console.error(error);
@@ -28,16 +39,42 @@ const ExploreScreen = () => {
     };
 
     const renderItem = ({ item }) => (
-        <TouchableOpacity style={styles.articleContainer} onPress={() => openArticleUrl(item.url)}>
-            <Text style={styles.title}>{item.title}</Text>
-            <Text style={styles.description}>{item.description}</Text>
+    <TouchableOpacity style={styles.articleContainer} onPress={() => openArticleUrl(item.url)}>
+        <TouchableOpacity >
+            <View style={{flexDirection:'row', padding:2, borderWidth:0.5, width:"30%"}} >
+            <Text style={{paddingHorizontal:8}}>Follow</Text>
+            <Ionicons style={{marginHorizontal:9}} name="add" size={20} color={Colors.primary} />
+            </View>
         </TouchableOpacity>
-    );
+        <Text style={styles.title}>{item.title}</Text>
+        <View>
+            <Image source={{uri:item.urlToImage}} ></Image>
+        </View>
+            
+        <View style={{flexDirection:'row', padding:6}}>
+            <TouchableOpacity>
+                <Ionicons style={{margin:2, justifyContent:'center', alignContent:'center'}} name="thumbs-up-outline" size={30}  />
+            </TouchableOpacity>
+
+            <TouchableOpacity>
+                <Ionicons style={{margin:2,paddingTop:4 ,justifyContent:'center', alignContent:'center'}}  name="thumbs-down-outline" size={30}  />
+            </TouchableOpacity>
+
+            <TouchableOpacity>
+                <Ionicons  style={{margin:2, justifyContent:'center', alignContent:'center'}} name="share-outline" size={30} />
+            </TouchableOpacity>
+            <TouchableOpacity style={{marginLeft:'60%'}} >
+            <Ionicons  style={{ paddingTop:6}} name="ellipsis-vertical" size={24} />
+            </TouchableOpacity>
+            
+        </View>
+    </TouchableOpacity>
+);
 
     return (
         <View style={styles.container}>
             {loading ? (
-                <ActivityIndicator size="large" color="#0000ff" />
+                <ActivityIndicator size="large" color={Colors.primary_color} />
             ) : (
                 <FlatList
                     data={articles}
@@ -54,26 +91,29 @@ const styles = StyleSheet.create({
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        backgroundColor: '#fff',
-        padding: 16,
+        backgroundColor: Colors.background_color,
+        padding: 8,
     },
     articleContainer: {
-        marginBottom: 16,
+        marginBottom: 2,
         padding: 12,
-        borderWidth: 1,
-        borderColor: '#ddd',
-        borderRadius: 8,
-        backgroundColor: '#f9f9f9',
+        borderBottomWidth:1,
+        borderColor: Colors.primary_color,
+        backgroundColor: Colors.background_color,
     },
     title: {
-        fontSize: 18,
-        fontWeight: 'bold',
+        fontSize: 17,
+        fontWeight: 'normal',
         marginBottom: 8,
+        paddingTop:5
     },
     description: {
         fontSize: 16,
         color: '#666',
     },
+    icon:{
+
+    }
 });
 
 export default ExploreScreen;

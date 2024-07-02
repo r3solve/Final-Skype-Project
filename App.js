@@ -13,6 +13,7 @@ import ProfileScreen from './Screens/ProfileScreen';
 import FindChats from './Screens/Home/FindChats';
 import ChatDetails from './Screens/Home/ChatDetails';
 import { useUserStore } from './store/UserDataStore';
+import Colors from './constants/Colors';
 
 const Stack = createNativeStackNavigator();
 
@@ -20,17 +21,19 @@ export default function App() {
   const { isLoggedIn, setUserState } = useUserStore()
   return (
     <NavigationContainer>
-      <Stack.Navigator>
+      <Stack.Navigator screenOptions={{
+        headerStyle: { backgroundColor: Colors.background_color }
+      }}>
         {isLoggedIn ? (
-          <Stack.Group name='home-decendants'>
+          <Stack.Group   name='home-decendants'>
             <Stack.Screen name="Home" options={{ headerShown: false }} component={HomeBase} />
-            <Stack.Screen name="Profile" options={{ headerShown: false }} component={ProfileScreen} />
-            <Stack.Screen name='Chat-Details' options={{ headerShown: true }} component={ChatDetails} />
+            <Stack.Screen name='Chat-Details' options={{ headerShown: true, title:'' }} component={ChatDetails} />
           </Stack.Group>
         ) : (
           <Stack.Group
             name='before-login'
-            screenOptions={{ headerShown: false }}
+            screenOptions={{ headerShown: false}}
+            
           >
             <Stack.Screen name="Get-Started" component={BaseScreen} />
             <Stack.Screen name="Register" component={RegisterScreen} />
@@ -43,7 +46,8 @@ export default function App() {
             headerShown: true,
             title: 'Search Users',
             headerStyle: {
-              height: 56, // Adjust the height as needed
+              height: 56,
+              backgroundColor: Colors.background_color 
             },
             headerTitleStyle: {
               fontSize: 16, // Adjust the font size as needed
@@ -51,6 +55,8 @@ export default function App() {
           }}
           component={FindChats}
         />
+        <Stack.Screen name="Profile" component={ProfileScreen} />
+
       </Stack.Navigator>
     </NavigationContainer>
   );

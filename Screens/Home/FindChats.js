@@ -3,11 +3,12 @@ import { StyleSheet, View, FlatList, Text } from 'react-native';
 import { Searchbar } from 'react-native-paper'
 import { ActivityIndicator } from 'react-native';
 import { initializeApp } from "firebase/app";
-import { getFirestore, doc, onSnapshot, collection } from "firebase/firestore";
+import { getFirestore, doc, onSnapshot, collection, setDoc } from "firebase/firestore";
 import { firebaseConfig } from '../../Configs/firebase';
 
 import AccountBar from '../../Components/AccountBar';
 import Colors from '../../constants/Colors';
+import { useUserStore } from '../../store/UserDataStore';
 
 
 const app = initializeApp(firebaseConfig);
@@ -19,6 +20,31 @@ const FindChats = ({ navigation }) => {
   const [allUsers, setAllUsers] = useState([])
   const [filteredUsers, setFilteredUsers] = useState([])
   const [isLoading, setIsLoading] = useState(true)
+  const { loggedInUser } = useUserStore()
+
+  const handlePress = async (receiver, profileUrl)=> {
+    // Generate a unique chatId
+    const chatId = 'chat_' + Date.now().toString();
+
+    // Get the user IDs for the participants
+    const userId1 = loggedInUser;
+    const userId2 = receiver;
+
+    // Create the new chat document
+    const newChatRef = doc(collection(db, 'chats'), chatId);
+    await setDoc(newChatRef, {
+      chatId: chatId,
+      createdBy: userId1,
+      receiver: receiver,
+      participants: [userId1, userId2],
+      messages: [],
+      profileUrl:profileUrl
+      ,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    });
+    alert('User Added');
+  }
 
   const handleSearch = (query) => {
     setSearchQuery(query);
@@ -44,9 +70,9 @@ const FindChats = ({ navigation }) => {
   
     return (
       <AccountBar
-        avatarUrl={item.avatarUrl || "https://i.pravatar.cc/150?img=3"}
+        avatarUrl={item.profileUrl}
         onPress={() => {
-          alert(`${item.username}-pressed`);
+          handlePress(item.email, item.profileUrl);
         }}
         username={`@${item.username}`}
         bio={item.bio}
@@ -74,7 +100,7 @@ const FindChats = ({ navigation }) => {
         placeholder="Search"
         onChangeText={handleSearch}
         value={searchQuery}
-        style={{ marginHorizontal: 3, marginVertical: 8, backgroundColor: '#e5ecec' }}
+        style={{ marginHorizontal: 3, marginVertical: 8, backgroundColor: '#e5ecec', height:55 }}
       />
       <View style={styles.contentContainer}>
         {isLoading ? (
@@ -88,7 +114,7 @@ const FindChats = ({ navigation }) => {
               contentContainerStyle={styles.flatListContainer}
             />
           ) : (
-            <Text>No users found.</Text>
+            <Text style={{textAlign:'center', fontSize:30}}>No users found.</Text>
           )
         )}
       </View>
@@ -99,7 +125,7 @@ const FindChats = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: Colors.background_color,
   },
   contentContainer: {
     flex: 1,

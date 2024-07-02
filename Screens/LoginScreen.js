@@ -1,14 +1,5 @@
 import React from 'react';
-import { StyleSheet,
-    View ,
-    Text,
-    Image,
-    ActivityIndicator,
-    TextInput,
-    TouchableOpacity,
-
-    
-    } from 'react-native';
+import { StyleSheet, View, Text, Image, ActivityIndicator, TextInput, TouchableOpacity } from 'react-native';
 import CustomButton from '../Components/CustomButton';
 import { useUserStore } from '../store/UserDataStore';
 import { useState } from 'react';
@@ -20,20 +11,20 @@ import { firebaseConfig } from '../Configs/firebase';
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app)
 
-
 const LoginScreen = ({navigation}) => {
-    const [email, setUsername] = useState('')
+    const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
-    const {setLoggedInUser, setUserState} = useUserStore()
+    const {setLoggedInUser, setUserState, loggedInUser} = useUserStore()
     const [isLoading, setLoading] = useState(false)
-
 
     const handleSignIn = () => {
         try {
           setLoading(true);
           signInWithEmailAndPassword(auth, email, password)
             .then((res) => {
-              setLoggedInUser(res.user.email);
+              setLoggedInUser(email);
+              console.log(loggedInUser)
+              setLoading(false)
               setUserState(true);
             })
             .catch((error) => {
@@ -49,8 +40,9 @@ const LoginScreen = ({navigation}) => {
           console.error(error);
           alert(`Login failed: ${error.message}`);
         }
+       
+        setLoggedInUser(loggedInUser);
       };
-      
 
     return (
         <View style={styles.container}>
@@ -60,7 +52,7 @@ const LoginScreen = ({navigation}) => {
                 style={styles.input}
                 placeholder="Email"
                 value={email}
-                onChangeText={setUsername}
+                onChangeText={setEmail}
                 autoCapitalize="none"
             />
             <TextInput
@@ -82,6 +74,7 @@ const LoginScreen = ({navigation}) => {
         </View>
     );
 }
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,

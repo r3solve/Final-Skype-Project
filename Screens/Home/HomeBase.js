@@ -29,17 +29,27 @@ const HomeBase = ({navigation}) => {
                         }
 
                         // You can return any component that you like here!
-                        return <Ionicons name={iconName} size={30} color={color} />;
+                        return <Ionicons name={iconName} size={32} color={color} />;
                     },
                     tabBarActiveTintColor: Colors.primary_color,
                     tabBarInactiveTintColor: 'gray',
+                    tabBarStyle: {
+                        backgroundColor: Colors.background_color,
+                        height:60
+                    },
+                    headerStyle: {
+                        backgroundColor: Colors.background_color,
+                    },
+                    headerTitleStyle: {
+                        fontWeight: 'bold',
+                    },
                 })}
             >
-                <Tab.Screen name="Home-Screen" options={{ title: 'Cloud Chat', headerRight:() => (<>
+                <Tab.Screen name="Home-Screen"   options={{ title: 'Cloud Chat', headerRight:() => (<>
                     <TouchableOpacity onPress={()=> navigation.navigate("Find-User")} >
                         <Ionicons style={{paddingHorizontal:12}} name='person-add-outline' size={30} ></Ionicons>
                     </TouchableOpacity>
-                    </>) }} component={HomeScreen} />
+                    </>), }} component={HomeScreen} />
                     
                 <Tab.Screen name="Explore" component={ExploreScreen} />
                 {/* <Tab.Screen name="Feed" component={FeedScreen} /> */}

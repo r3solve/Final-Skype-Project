@@ -9,18 +9,17 @@ import {
 } from 'react-native'
 import Colors from '../constants/Colors'
 import { Avatar }from 'react-native-paper'
-const AccountBar  = ({avatarUrl, username, bio}) => {
+const AccountBar  = ({avatarUrl, username, bio, onPress}) => {
     return (
-        <TouchableOpacity style={styles.outContainer} onPress={()=> navigation.navigate("Chat-Details")}>
+        <TouchableOpacity style={styles.outContainer} onPress={onPress}>
             <View style={styles.chatbar} >
-                <Avatar.Image size={70} source={{uri:avatarUrl}} />
+                <Avatar.Image size={60} source={{uri:avatarUrl}} />
                 <View style={{marginHorizontal:12,paddingTop:8}} >
                     <Text style={styles.profileNameText}>{username}</Text>
                     <Text style={styles.lastMessage}>{bio}
                     </Text>
 
                 </View>
-                {/* <Badge style={{marginBottom:20, marginLeft:'35%', alignSelf:'flex-end'}} size={35}>3</Badge> */}
 
             </View>
         </TouchableOpacity>
@@ -35,22 +34,23 @@ const styles = StyleSheet.create({
        
     },
     profileNameText: {
-        fontSize: 16,
-        fontWeight: 'bold',
+        fontSize: 14,
+        fontWeight: 'normal',
         color: Colors.primary_color
     },
     lastMessage: {
         fontSize: 14,
         color: '#9ba3a8',
+        fontWeight:'normal'
     },
     outContainer: {
         justifyContent:'center',
         width: "99%",
-        borderRadius:4,
-        borderWidth:1,
         borderColor:'#e6e2e2',
-        backgroundColor:'white',
-        height:80
+        backgroundColor:Colors.background_color,
+        height:80,
+        borderWidth:0.3,
+        padding:5
         
     }
 })

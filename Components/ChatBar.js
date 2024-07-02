@@ -10,20 +10,17 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { Avatar, Badge } from 'react-native-paper';
 import Colors from '../constants/Colors';
-const ChatBar = ({username, avatarUrl, lastMessage}) => {
+const ChatBar = ({username, avatarUrl, lastMessage, onPress}) => {
     const navigation = useNavigation()
     return (
-        <TouchableOpacity style={styles.outContainer} onPress={()=> navigation.navigate("Chat-Details")}>
+        <TouchableOpacity style={styles.outContainer} onPress={onPress}>
             <View style={styles.chatbar} >
-                <Avatar.Image size={70} source={{uri:avatarUrl}} />
+                <Avatar.Image size={60} source={{uri:avatarUrl}}   />
                 <View style={{marginHorizontal:12,paddingTop:8}} >
                     <Text style={styles.profileNameText}>{username}</Text>
                     <Text style={styles.lastMessage}>{lastMessage}
                     </Text>
-
                 </View>
-                {/* <Badge style={{marginBottom:20, marginLeft:'35%', alignSelf:'flex-end'}} size={35}>3</Badge> */}
-
             </View>
         </TouchableOpacity>
         
@@ -34,12 +31,12 @@ const styles = StyleSheet.create({
     chatbar:{
         flexDirection:'row',
         width: "100%",
-        alignContent:'center'
+        alignContent:'center',
        
     },
     profileNameText: {
-        fontSize: 16,
-        fontWeight: 'bold',
+        fontSize: 14,
+        fontWeight: 'normal',
         color: Colors.primary_color
     },
     lastMessage: {
@@ -49,11 +46,11 @@ const styles = StyleSheet.create({
     outContainer: {
         justifyContent:'center',
         width: "99%",
-        borderRadius:4,
-        borderWidth:1,
         borderColor:'#e6e2e2',
-        backgroundColor:'white',
-        height:80
+        backgroundColor:Colors.background_color,
+        height:80,
+        borderWidth:0.3,
+        padding:5
         
     }
 })
