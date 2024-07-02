@@ -18,8 +18,8 @@ const HomeBase = ({navigation}) => {
                     tabBarIcon: ({ focused, color, size }) => {
                         let iconName;
 
-                        if (route.name === 'Home') {
-                            iconName = focused ? 'chatbubble' : 'chatbubble-outline';
+                        if (route.name === 'Home-Screen') {
+                            iconName = focused ? 'chatbubble-ellipses' : 'chatbubble-outline';
                         } else if (route.name === 'Explore') {
                             iconName = focused ? 'compass' : 'compass-outline';
                         } else if (route.name === 'Feed') {
@@ -35,11 +35,12 @@ const HomeBase = ({navigation}) => {
                     tabBarInactiveTintColor: 'gray',
                 })}
             >
-                <Tab.Screen name="Home" options={{ title: 'Cloud Chat', headerRight:() => (<>
+                <Tab.Screen name="Home-Screen" options={{ title: 'Cloud Chat', headerRight:() => (<>
                     <TouchableOpacity onPress={()=> navigation.navigate("Find-User")} >
                         <Ionicons style={{paddingHorizontal:12}} name='person-add-outline' size={30} ></Ionicons>
                     </TouchableOpacity>
                     </>) }} component={HomeScreen} />
+                    
                 <Tab.Screen name="Explore" component={ExploreScreen} />
                 {/* <Tab.Screen name="Feed" component={FeedScreen} /> */}
                 <Tab.Screen name="Settings" component={SettingsScreen} />

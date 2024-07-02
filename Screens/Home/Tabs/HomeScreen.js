@@ -2,13 +2,16 @@ import React from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import { FAB, Portal, Provider } from 'react-native-paper';
 import Colors from '../../../constants/Colors';
-
+import ChatBar from '../../../Components/ChatBar';
+import AccountBar from '../../../Components/AccountBar';
 const HomeScreen = ({navigation}) => {
   
   return (
+    <>
     <Provider>
       <View style={styles.container}>
         <Text style={styles.textStyle}>Home Screen</Text>
+        <ChatBar></ChatBar>
         <FAB
           icon="message"
           style={styles.fab}
@@ -17,6 +20,7 @@ const HomeScreen = ({navigation}) => {
         />
       </View>
     </Provider>
+    </>
   );
 }
 
@@ -25,6 +29,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: Colors.background_color
   },
   textStyle: {
     fontSize: 24,

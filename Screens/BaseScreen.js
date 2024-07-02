@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, View, Text, Image} from 'react-native';
 import Colors from '../constants/Colors';
 import CustomButton from '../Components/CustomButton';
+import { useState } from 'react';
 const BaseScreen = ({navigation}) => {
     return (
         <View style={styles.mainContainer}>
