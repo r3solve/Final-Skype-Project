@@ -139,8 +139,13 @@ const ChatDetails = ({ navigation, route }) => {
       // await uploadBytes(storageRef, blob);
       // Retrieve the download URL of the uploaded image
       // const downloadURL = await getDownloadURL(storageRef);
-      // setAttachedImage(downloadURL);
+      setAttachedImage(result.assets[0].uri);
+      // console.log(response.url)
     }
+}
+const cancelImageSend = ()=> {
+  setAttachedImage(null)
+  setImageBlob(null)
 }
   const renderItem = ({ item }) => (
     <View style={[styles.messageContainer, item.sender === loggedInUser ? styles.sentMessage : styles.receivedMessage]}>
@@ -159,14 +164,14 @@ const ChatDetails = ({ navigation, route }) => {
         ref={flatListRef}
         data={resultData}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.ChatId}
         contentContainerStyle={[styles.messageList]}
       />
       <View style={styles.inputContainer}>
         {attachedImage && (
           <View style={styles.attachmentContainer}>
-            <Image source={{ uri: attachedImage }} style={styles.attachedImage} />
-            <TouchableOpacity onPress={() => setAttachedImage(null)}>
+            <Image source={{ uri: attachedImage }} style={{width:30, height:30, borderRadius:3}} />
+            <TouchableOpacity onPress={cancelImageSend}>
               <Ionicons name="close" size={20} color={Colors.text_color} />
             </TouchableOpacity>
           </View>
