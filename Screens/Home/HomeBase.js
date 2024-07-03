@@ -45,7 +45,7 @@ const HomeBase = ({navigation}) => {
                     },
                 })}
             >
-                <Tab.Screen name="Home-Screen"   options={{ title: 'Cloud Chat', headerRight:() => (<>
+                <Tab.Screen name="Home-Screen"   options={{ title: 'Chats', headerRight:() => (<>
                     <TouchableOpacity onPress={()=> navigation.navigate("Find-User")} >
                         <Ionicons style={{paddingHorizontal:12}} name='person-add-outline' size={30} ></Ionicons>
                     </TouchableOpacity>

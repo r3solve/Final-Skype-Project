@@ -8,12 +8,14 @@ import firebase from 'firebase/compat/app';
 import { firebaseConfig } from '../../Configs/firebase';
 import { initializeApp } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import {arrayUnion, onSnapshot, doc, updateDoc } from 'firebase/firestore';
+import { arrayUnion, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import { useUserStore } from '../../store/UserDataStore';
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+firebase.initializeApp(firebaseConfig)
 
 const ChatDetails = ({ navigation, route }) => {
   const [messages, setMessages] = useState([]);
@@ -21,40 +23,47 @@ const ChatDetails = ({ navigation, route }) => {
   const [attachedImage, setAttachedImage] = useState(null);
   const flatListRef = useRef(null);
   const [resultData, setAllData] = useState(null)
-  const {id} = route.params
-  const {loggedInUser} = useUserStore()
+  const { id } = route.params
+  const { loggedInUser } = useUserStore()
+  const [imageblob, setImageBlob] = useState(null)
 
   useLayoutEffect(() => {
     navigation.setOptions({
-        headerLeft: () => (
-            <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => navigation.goBack()}>
-                <Ionicons name="arrow-back" size={24} style={{ paddingTop: 12, margin: 4 }} />
-                <TouchableOpacity style={{paddingHorizontal:5}} onPress={()=> navigation.navigate('Profile')} >
-                    <Avatar.Image size={50} source={{ uri: route.params.profileUrl }} />
-                </TouchableOpacity>
-            </TouchableOpacity>
-        ),
-        headerTitle: route.params.username.split('@')[0],
-        headerTitleStyle: {
-            color: Colors.text_color,
-            fontWeight: '200',
-          
-        },
+      headerLeft: () => (
+        <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => navigation.goBack()}>
+          <Ionicons name="arrow-back" size={24} style={{ paddingTop: 12, margin: 4 }} />
+          <TouchableOpacity style={{ paddingHorizontal: 5 }} onPress={() => navigation.navigate('Profile')}>
+            <Avatar.Image size={50} source={{ uri: route.params.profileUrl }} />
+          </TouchableOpacity>
+        </TouchableOpacity>
+      ),
+      headerTitle: route.params.username.split('@')[0],
+      headerTitleStyle: {
+        color: Colors.text_color,
+        fontWeight: '200',
+      },
+      headerRight: () => (
+        <View style={{ flexDirection: 'row' }}>
+          <TouchableOpacity>
+            <Ionicons style={{ padding: 3, marginHorizontal: 3 }} size={30} name='videocam-outline'></Ionicons>
+          </TouchableOpacity>
+          <TouchableOpacity>
+            <Ionicons style={{ padding: 3, marginHorizontal: 3 }} size={30} name='call-outline'></Ionicons>
+          </TouchableOpacity>
+        </View>
+      )
     });
-}, [navigation, route.params.username]);
+  }, [navigation, route.params.username]);
 
   useEffect(() => {
-  
     const chatRef = doc(db, 'chats', id);
-  
+
     // Set up the onSnapshot listener
     const unsub = onSnapshot(chatRef, (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.data();
         if (data && data.messages) {
           setAllData(data.messages);
-          console.log(resultData)
-
         } else {
           console.log('Messages field is missing in the document');
         }
@@ -62,31 +71,40 @@ const ChatDetails = ({ navigation, route }) => {
         alert.log("Can't Load Chats");
       }
     });
-  
+
     // Clean up the onSnapshot listener on unmount
     return () => unsub();
   }, [id, resultData]); // Add chatId to dependency array to re-run the effect when chatId changes
-  // Add chatId to dependency array to re-run the effect when chatId changes
-  
 
   const handleSendMessage = async () => {
     if (newMessage.trim() !== '' || attachedImage) {
+      let downloadURL = null;
+      if (imageblob) {
+        // Upload the image to Firebase Storage
+        // const response = await fetch(attachedImage);
+        const blob = await imageblob;
+        const storage = getStorage();
+        const storageRef = ref(storage, `media/${Date.now()}`);
+        await uploadBytes(storageRef, blob);
+        downloadURL = await getDownloadURL(storageRef);
+
+      }
+
       const newMessageObj = {
         sender: loggedInUser,
         message: newMessage,
-        reciever:route.params.username,
-        imageUrl: attachedImage,
+        receiver: route.params.username,
+        imageUrl: downloadURL,
         sentDate: new Date().toDateString(),
-        sentTime: new Date().toTimeString()
-      
+        sentTime: new Date().toLocaleTimeString(),
       };
 
+      setNewMessage('');
       const chatRef = doc(db, 'chats', id);
       await updateDoc(chatRef, {
         messages: arrayUnion(newMessageObj), // Add new message to the array
-        updatedAt: Date.now() 
+        updatedAt: Date.now(),
       });
-      setNewMessage('');
       setAttachedImage(null);
       flatListRef.current.scrollToIndex({ index: 0, animated: true });
     }
@@ -102,22 +120,36 @@ const ChatDetails = ({ navigation, route }) => {
 
     // Open image picker
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
       allowsEditing: true,
-      aspect: [4, 3],
+      aspect: [4, 4],
       quality: 1,
     });
 
     if (!result.cancelled) {
-      setAttachedImage(result.uri);
-    }
-  };
+      const response = await fetch(result.assets[0].uri);
+      const blob = await response.blob();
+      setImageBlob(blob)
 
+      // Get a reference to the Firebase Storage
+      // const storage = getStorage();
+      // const storageRef = ref(storage, `media/${Date.now()}`);
+
+      // Upload the image to Firebase Storage
+      // await uploadBytes(storageRef, blob);
+      // Retrieve the download URL of the uploaded image
+      // const downloadURL = await getDownloadURL(storageRef);
+      // setAttachedImage(downloadURL);
+    }
+}
   const renderItem = ({ item }) => (
     <View style={[styles.messageContainer, item.sender === loggedInUser ? styles.sentMessage : styles.receivedMessage]}>
-      {item.image && <Image source={{ uri: item.image }} style={styles.attachedImage} />}
+      {item.imageUrl && 
+      <Image  source={{ uri: item.imageUrl }} style={styles.attachedImage} />
+      
+      }
       <Text style={styles.messageText}>{item.message}</Text>
-      <Text style={{alignSelf:'flex-end', color:'white'}}>{item.sentTime}</Text>
+      <Text style={{alignSelf:'flex-end', color:'white', fontSize:10}}>{item.sentTime}</Text>
     </View>
   );
 
@@ -140,11 +172,11 @@ const ChatDetails = ({ navigation, route }) => {
           </View>
         )}
         <TouchableOpacity onPress={handleSendMessage}>
-          <Ionicons name="add-circle-outline" size={30} color={Colors.primary_color} />
+          <Ionicons name="add-circle-outline" style={{marginHorizontal:1}} size={30} color={Colors.primary_color} />
         </TouchableOpacity>
 
         <TouchableOpacity onPress={handleAttachImage}>
-          <Ionicons name="attach" size={30} color={Colors.primary_color} />
+          <Ionicons name='film-outline' style={{marginHorizontal:1}}  size={30} color={Colors.primary_color} />
         </TouchableOpacity>
         
         <TextInput
@@ -153,6 +185,7 @@ const ChatDetails = ({ navigation, route }) => {
           value={newMessage}
           onChangeText={setNewMessage}
           onSubmitEditing={handleSendMessage}
+          cursorColor={Colors.primary_color}
         />
         
         <TouchableOpacity onPress={handleSendMessage}>
@@ -208,6 +241,9 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 16,
     marginRight: 12,
+    fontSize:15,
+    fontWeight:'light',
+    
   },
   attachmentContainer: {
     flexDirection: 'row',
@@ -215,10 +251,11 @@ const styles = StyleSheet.create({
     marginRight: 12,
   },
   attachedImage: {
-    width: 40,
-    height: 40,
+    width: 200,
+    height: 200,
     borderRadius: 8,
     marginRight: 8,
+    alignContent:'center'
   },
 });
 
