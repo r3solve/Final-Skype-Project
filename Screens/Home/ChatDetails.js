@@ -37,7 +37,7 @@ const ChatDetails = ({ navigation, route }) => {
           </TouchableOpacity>
         </TouchableOpacity>
       ),
-      headerTitle: route.params.username.split('@')[0],
+      headerTitle: route.params.username?.split('@')[0],
       headerTitleStyle: {
         color: Colors.text_color,
         fontWeight: '200',
@@ -53,7 +53,7 @@ const ChatDetails = ({ navigation, route }) => {
         </View>
       )
     });
-  }, [navigation, route.params.username]);
+  }, [navigation, route.params?.username]);
 
   useEffect(() => {
     const chatRef = doc(db, 'chats', id);

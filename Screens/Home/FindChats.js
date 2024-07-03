@@ -38,12 +38,11 @@ const FindChats = ({ navigation }) => {
       receiver: receiver,
       participants: [userId1, userId2],
       messages: [],
-      profileUrl:profileUrl
-      ,
+      profileUrl:profileUrl,
       createdAt: new Date(),
       updatedAt: new Date()
     });
-    alert('User Added');
+    navigation.navigate("Chat-Details", {username:receiver, profileUrl: profileUrl, id:chatId})
   }
 
   const handleSearch = (query) => {
