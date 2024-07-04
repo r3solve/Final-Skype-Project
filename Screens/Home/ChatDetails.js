@@ -37,9 +37,9 @@ const ChatDetails = ({ navigation, route }) => {
           </TouchableOpacity>
         </TouchableOpacity>
       ),
-      headerTitle: items?.receiver === loggedInUser
-        ? items?.createdBy?.split("@")[0] || ''
-        : items?.receiver?.split("@")[0] || '',
+      headerTitle: items?.createdBy === loggedInUser
+        ?items?.receiver?.split("@")[0]
+        : items?.createdBy?.split("@")[0] || '',
       headerTitleStyle: {
         color: Colors.text_color,
         fontWeight: '200',
@@ -83,8 +83,7 @@ const ChatDetails = ({ navigation, route }) => {
     if (newMessage.trim() !== '' || attachedImage) {
       let downloadURL = null;
       if (imageblob) {
-        // Upload the image to Firebase Storage
-        // const response = await fetch(attachedImage);
+       
         const blob = await imageblob;
         const storage = getStorage();
         const storageRef = ref(storage, `media/${Date.now()}`);

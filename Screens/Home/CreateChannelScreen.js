@@ -9,17 +9,23 @@ import { initializeApp } from 'firebase/app';
 import { getFirestore,setDoc, doc, collection } from 'firebase/firestore';
 import { useUserStore } from '../../store/UserDataStore';
 
+import * as ImagePicker from 'expo-image-picker';
+import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+
+
 const app = initializeApp(firebaseConfig)
 const db = getFirestore(app)
 
-const CreateChannelScreen = () => {
+const CreateChannelScreen = ({navigation}) => {
   const [channelName, setChannelName] = useState('');
   const [channelDescription, setChannelDescription] = useState('');
   const [selectedTags, setSelectedTags] = useState([]);
   const [checked, setChecked] = useState(false);
-  const [avatarUrl, setAvatarUrl] = useState('https://i.pravatar.cc/150?u=fake@pravatar.com')
+  const [avatarUrl, setAvatarUrl] = useState('https://img.eg')
   const {loggedInUser} = useUserStore();
   const [searchQuery, setSearchQuery] = useState('')
+  const [imageblob, setImageBlob] = useState(null)
+  const [imageLocal, setLocalImage] = useState('https://imag.eg')
   const tags = [
     { id: 1, label: 'Education' },
     { id: 2, label: 'Food' },
@@ -41,50 +47,80 @@ const CreateChannelScreen = () => {
     }
   };
 
-  const handleCreateChannel = async  () => {
-    //Working on this side 
-    const channelId = 'channel_' + Date.now().toString();
-
-    const newChatRef = doc(collection(db, 'channels'), channelId);
-    await setDoc(newChatRef, {
-      chatId: channelId,
-      name:channelName,
-      description:channelDescription,
-      createdBy: loggedInUser,
-      admins:[loggedInUser],
-      followers: [],
-      posts: [],
-      tags: [...selectedTags],
-      avatarUrl:avatarUrl,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      isMonetized: checked,
-      dateCreated: new Date().toLocaleString()
-    }).then(()=> {
-      setSelectedTags([])
-      setChannelDescription('')
-      setChannelName('')
-
-    }).catch(()=>{
-      alert('Can\t Create Create Channel ')
-    }).finally(()=>{
-      navigation.navigate("Channel-Details", {profileUrl: profileUrl, id:chatId, name:channelName})
-
-    });
-    
-    // Handle channel creation logic here
-    // console.log('Channel Name:', channelName);
-    // console.log('Channel Description:', channelDescription);
-    // console.log('Selected Tags:', selectedTags);
+  const handleCreateChannel = async () => {
+    try {
+      const channelId = 'channel_' + Date.now().toString();
+  
+      const newChatRef = doc(collection(db, 'channels'), channelId);
+  
+      const storage = getStorage();
+      const storageRef = ref(storage, `avatars/${Date.now()}`);
+  
+      let downloadURL = '';
+      if (imageblob) {
+        // Upload the image to Firebase Storage
+        await uploadBytes(storageRef, imageblob);
+        // Retrieve the download URL of the uploaded image
+        downloadURL = await getDownloadURL(storageRef);
+      }
+  
+      await setDoc(newChatRef, {
+        channelId: channelId,
+        name: channelName,
+        description: channelDescription,
+        createdBy: loggedInUser,
+        admins: [loggedInUser],
+        followers: [],
+        posts: [],
+        tags: [...selectedTags],
+        avatarUrl: downloadURL || '',
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        isMonetized: checked,
+        dateCreated: new Date().toLocaleString(),
+      });
+  
+      setSelectedTags([]);
+      setChannelDescription('');
+      setChannelName('');
+      setImageBlob('');
+      setLocalImage('');
+  
+      alert("Channe Created")
+    } catch (error) {
+      console.error('Error creating channel:', error);
+      alert('Can\t Create Create Channel ');
+      setImageBlob('');
+      setLocalImage('');
+    }
   };
+  
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 1,
+    });
+
+    console.log(result);
+
+    if (!result.canceled) {
+        const response = await fetch(result.assets[0].uri);
+        const blob = await response.blob();
+        setImageBlob(blob)
+        setLocalImage(result.assets[0].uri)
+
+    }
+};
 
   
 
   return (
     <View style={styles.container}>
 
-      <TouchableOpacity>
-        <Avatar.Image style={{ margin: 4 }} size={100} source={{ uri: avatarUrl }} />
+      <TouchableOpacity onPress={pickImage}>
+        <Avatar.Image style={{ margin: 4 }} size={100} source={{ uri: imageLocal }} />
       </TouchableOpacity>
       <View style={styles.inputContainer}>
         <TextInput

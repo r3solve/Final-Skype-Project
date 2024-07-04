@@ -9,7 +9,7 @@ import ExploreScreen from './Tabs/ExploreScreen';
 import SettingsScreen from './Tabs/SettingsScreen';
 import Colors from '../../constants/Colors';
 import ChannelScreen from './Tabs/ChannelScreen';
-
+import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 const Tab = createBottomTabNavigator();
 
 const HomeBase = ({navigation}) => {
@@ -49,7 +49,7 @@ const HomeBase = ({navigation}) => {
                 <Tab.Screen name="Home-Screen"   options={{ title: 'Chats', headerRight:() => (
                 <View style={{flexDirection:'row'}}>
                     <TouchableOpacity onPress={()=> navigation.navigate('Copilot')} >
-                        <Ionicons style={{paddingHorizontal:4}} color={Colors.primary_color} name='aperture-outline' size={30} ></Ionicons>
+                        <MaterialCommunityIcons size={30} style={{paddingHorizontal:4}} color={Colors.primary_color} name='robot-vacuum' />
                     </TouchableOpacity>
                     <TouchableOpacity onPress={()=> navigation.navigate("Find-User")}>
                         <Ionicons color={'gray'} style={{paddingHorizontal:12}} name='person-add-outline' size={28} ></Ionicons>

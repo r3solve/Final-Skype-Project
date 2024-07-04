@@ -8,6 +8,7 @@ import { getFirestore } from 'firebase/firestore';
 import { arrayUnion, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import firebase from 'firebase/compat/app';
 import { Avatar } from 'react-native-paper';
+import { AntDesign } from '@expo/vector-icons';
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);

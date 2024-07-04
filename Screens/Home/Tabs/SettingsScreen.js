@@ -1,9 +1,20 @@
-import React, { useLayoutEffect } from 'react';
+import React, { useEffect, useLayoutEffect, useState } from 'react';
 import { StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons'; // Make sure to install this package
 import Colors from '../../../constants/Colors';
+import { useUserStore } from '../../../store/UserDataStore';
+import { firebaseConfig } from '../../../Configs/firebase';
+import { getFirestore, getDoc, doc, onSnapshot } from 'firebase/firestore';
+
+import { initializeApp } from 'firebase/app';
+import { Avatar } from 'react-native-paper';
+
+const app = initializeApp(firebaseConfig)
+const db = getFirestore(app)
 
 const SettingsScreen = ({ navigation }) => {
+    const {setUserState, setLoggedInUser, loggedInUser} = useUserStore()
+    const [userData, setUserData]= useState(null)
     useLayoutEffect(() => {
       navigation.setOptions({
         headerTitle: 'Profile',
@@ -13,7 +24,7 @@ const SettingsScreen = ({ navigation }) => {
         },
         headerRight: () => (
           <TouchableOpacity>
-            <Ionicons name="qr-code-outline" size={30} style={{ paddingHorizontal: 30 }} color={Colors.primary} />
+            <Ionicons name="qr-code-outline" size={25} style={{ paddingHorizontal: 30 }} color={Colors.primary} />
           </TouchableOpacity>
         ),
         headerStyle: {
@@ -22,22 +33,46 @@ const SettingsScreen = ({ navigation }) => {
       });
     }, [navigation]);
     
+    useEffect(() => {
+        const fetchUserData = async () => {
+            try {
+                const userRef = doc(db, 'users', loggedInUser);
+                const userSnapshot = await getDoc(userRef);
+                if (userSnapshot.exists()) {
+                    setUserData(userSnapshot.data());
+                } else {
+                    console.log('User document does not exist');
+                }
+            } catch (error) {
+                console.error('Error fetching user data:', error);
+            }
+        };
 
+        fetchUserData();
+    }, [loggedInUser]);
+
+
+    const handleLogOut = () => {
+        setUserState(false)
+        setLoggedInUser(null)
+    }
     return (
         <View style={styles.container}>
             <View style={styles.profilePicContainer}>
-                <View style={styles.profilePic} />
-                <Text style={{fontSize:30, fontWeight:'bold'}}>John Doe</Text>
+                {console.log(loggedInUser)}
+                <View />
+                <Avatar.Image size={100}  source={{uri:userData?.profileUrl}}/>
+                <Text style={{fontSize:30, fontWeight:'bold', color:Colors.tertiary_color_tint}}>@{userData?.email.split("@")[0]}</Text>
             </View>
             <View style={[styles.option, styles.alignItemsCenter]}>
                 <Ionicons name="mail-outline" size={24} color="black" />
                 <Text style={styles.optionName}>Email</Text>
-                <Text style={styles.optionValue}>judosloth@gmail.com</Text>
+                <Text style={styles.optionValue}>{userData?.email}</Text>
             </View>
             <View style={[styles.option, styles.alignItemsCenter]}>
                 <Ionicons name="call-outline" size={24} color="black"  />
                 <Text style={styles.optionName}>Phone</Text>
-                <Text style={styles.optionValue}>0540552725</Text>
+                <Text style={styles.optionValue}>{userData?.phone}</Text>
             </View>
             <View style={[styles.option, styles.alignItemsCenter]}>
                 <Ionicons name="gift-outline" size={24} color="black" />
@@ -53,7 +88,7 @@ const SettingsScreen = ({ navigation }) => {
                     <Text style={styles.optionName}>Share Profile</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={[styles.option, styles.alignItemsCenter]}>
+                <TouchableOpacity onPress={handleLogOut}  style={[styles.option, styles.alignItemsCenter]}>
                     <Ionicons name='log-out-outline' size={24} color="black" />
                     <Text style={[styles.optionName, {fontSize:18, fontWeight:'bold'}]}>Log Out</Text>
                 </TouchableOpacity>

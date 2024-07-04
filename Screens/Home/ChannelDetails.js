@@ -3,7 +3,7 @@ import { StyleSheet, View, FlatList, TextInput, TouchableOpacity, Text, Image } 
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import Colors from '../../constants/Colors';
-import { Avatar } from 'react-native-paper';
+import { ActivityIndicator, Avatar } from 'react-native-paper';
 import firebase from 'firebase/compat/app';
 import { firebaseConfig } from '../../Configs/firebase';
 import { initializeApp } from 'firebase/app';
@@ -23,25 +23,22 @@ const ChannelDetails = ({ navigation, route }) => {
   const [attachedImage, setAttachedImage] = useState(null);
   const flatListRef = useRef(null);
   const [resultData, setAllData] = useState(null)
-  const { items} = route.params
+  const { item, id } = route.params
   const { loggedInUser } = useUserStore()
   const [imageblob, setImageBlob] = useState(null)
   const [isAdmin, setIsAdmin] = useState(false)
-  const {item } = route.params
-
+  const [isLoading, setIsLoading] = useState(false)
   useLayoutEffect(() => {
     navigation.setOptions({
       headerLeft: () => (
         <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} style={{ paddingTop: 12, margin: 4 }} />
-          <TouchableOpacity style={{ paddingHorizontal: 5 }} onPress={() => navigation.navigate('Profile', { username: route.params.username })}>
-            <Avatar.Image size={50} source={{ uri: route.params.profileUrl }} />
+          <TouchableOpacity style={{ paddingHorizontal: 5 }} onPress={() => navigation.navigate('Profile')}>
+            <Avatar.Image size={50} source={{ uri: item?.avatarUrl }} />
           </TouchableOpacity>
         </TouchableOpacity>
       ),
-      headerTitle: items?.receiver === loggedInUser
-        ? items?.createdBy?.split("@")[0] || ''
-        : items?.receiver?.split("@")[0] || '',
+      headerTitle: item?.name,
       headerTitleStyle: {
         color: Colors.text_color,
         fontWeight: '200',
@@ -54,29 +51,37 @@ const ChannelDetails = ({ navigation, route }) => {
         </View>
       )
     });
-  }, [navigation, items?.name, items?.createdBy, items?.posts])
+  }, [navigation, item?.name, item?.createdBy, item?.posts])
+
+  useEffect(()=>{
+    if (item?.admins.includes(loggedInUser)){
+      setIsAdmin(true)
+    }
+  },[])
   
 
-//   useEffect(() => {
-//     const chatRef = doc(db, 'chats', id);
 
-//     // Set up the onSnapshot listener
-//     const unsub = onSnapshot(chatRef, (snapshot) => {
-//       if (snapshot.exists()) {
-//         const data = snapshot.data();
-//         if (data && data.messages) {
-//           setAllData(data.messages);
-//         } else {
-//           console.log('Messages field is missing in the document');
-//         }
-//       } else {
-//         alert.log("Can't Load Chats");
-//       }
-//     });
+  useEffect(() => {
+    const chatRef = doc(db, 'channels', item?.channelId);
 
-//     // Clean up the onSnapshot listener on unmount
-//     return () => unsub();
-//   }, [resultData]); 
+    // Set up the onSnapshot listener
+    const unsub = onSnapshot(chatRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.data();
+        // console.log(data.posts)
+        if (data && data.posts) {
+          setAllData(data.posts);
+        } else {
+          console.log('Messages field is missing in the document');
+        }
+      } else {
+        alert.log("Can't Load Chats");
+      }
+    });
+
+    // Clean up the onSnapshot listener on unmount
+    return () => unsub();
+  }, [resultData]); 
 
   const handleSendMessage = async () => {
     if (newMessage.trim() !== '' || attachedImage) {
@@ -92,19 +97,20 @@ const ChannelDetails = ({ navigation, route }) => {
 
       }
 
-      const newMessageObj = {
+      const newPostObj = {
         sender: loggedInUser,
         message: newMessage,
-        receiver: route.params.username,
         imageUrl: downloadURL,
         sentDate: new Date().toDateString(),
         sentTime: new Date().toLocaleTimeString(),
+        likes:0,
+        dislikes:0,
       };
 
       setNewMessage('');
-      const chatRef = doc(db, 'chats', id);
-      await updateDoc(chatRef, {
-        messages: arrayUnion(newMessageObj), // Add new message to the array
+      const channelRef = doc(db, 'channels', id);
+      await updateDoc(channelRef, {
+        posts: arrayUnion(newPostObj), // Add new message to the array
         updatedAt: Date.now(),
       });
       setAttachedImage(null);
@@ -134,16 +140,7 @@ const ChannelDetails = ({ navigation, route }) => {
       const blob = await response.blob();
       setImageBlob(blob)
 
-      // Get a reference to the Firebase Storage
-      // const storage = getStorage();
-      // const storageRef = ref(storage, `media/${Date.now()}`);
-
-      // Upload the image to Firebase Storage
-      // await uploadBytes(storageRef, blob);
-      // Retrieve the download URL of the uploaded image
-      // const downloadURL = await getDownloadURL(storageRef);
       setAttachedImage(result.assets[0].uri);
-      // console.log(response.url)
     }
 }
 const cancelImageSend = ()=> {
@@ -163,6 +160,8 @@ const cancelImageSend = ()=> {
 
   return (
     <View style={styles.container}>
+      { resultData?.length === 0 && <ActivityIndicator style={{marginVertical:15}} size={40} color={Colors.primary_color} />
+ }
       <FlatList
         ref={flatListRef}
         data={resultData}
@@ -171,7 +170,7 @@ const cancelImageSend = ()=> {
         contentContainerStyle={[styles.messageList]}
       />
 
-      { isAdmin &&  
+      { isAdmin?  
       <View style={styles.inputContainer}>
         {attachedImage && (
           <View style={styles.attachmentContainer}>
@@ -202,10 +201,12 @@ const cancelImageSend = ()=> {
           <Ionicons name="send" size={30} color={Colors.primary_color} />
         </TouchableOpacity>
         
-      </View>}
-      <View style={{backgroundColor:Colors.secodary_color_tint}} >
-        <Text style={{textAlign:'center', color:Colors.tertiary_color}} >Only Admins Can Send Messages</Text>
+      </View>:
+        <View style={{backgroundColor:Colors.secodary_color_tint}} >
+          <Text style={{textAlign:'center', color:Colors.tertiary_color}} >Only Admins Can Send Messages</Text>
       </View>
+      }
+      
     </View>
   );
 };
@@ -224,10 +225,12 @@ const styles = StyleSheet.create({
     padding: 12,
     borderRadius: 12,
     marginVertical: 4,
+    marginHorizontal:12
   },
   sentMessage: {
     backgroundColor: Colors.primary_color,
-    alignSelf: 'flex-end',
+    alignSelf: 'left',
+    width:'90%'
   },
   receivedMessage: {
     backgroundColor: '#4b94b1',
