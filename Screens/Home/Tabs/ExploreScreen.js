@@ -10,6 +10,7 @@ import { StyleSheet,
     Linking } from 'react-native';
 import Colors from '../../../constants/Colors';
 
+import Feather from '@expo/vector-icons/Feather';
 
 const KEY = '54c178ac258b494e80a70895aef90bc8';
 
@@ -53,15 +54,15 @@ const ExploreScreen = () => {
             
         <View style={{flexDirection:'row', padding:6}}>
             <TouchableOpacity>
-                <Ionicons style={{margin:2, justifyContent:'center', alignContent:'center'}} name="thumbs-up-outline" size={30}  />
+                <Feather style={{margin:2, justifyContent:'center', alignContent:'center'}} name='thumbs-up' size={24}  />
             </TouchableOpacity>
 
             <TouchableOpacity>
-                <Ionicons style={{margin:2,paddingTop:4 ,justifyContent:'center', alignContent:'center'}}  name="thumbs-down-outline" size={30}  />
+                <Feather style={{margin:2,paddingTop:4 ,justifyContent:'center', alignContent:'center'}}  name="thumbs-down" size={24}  />
             </TouchableOpacity>
 
             <TouchableOpacity>
-                <Ionicons  style={{margin:2, justifyContent:'center', alignContent:'center'}} name="share-outline" size={30} />
+                <Ionicons  style={{margin:2, justifyContent:'center', alignContent:'center'}} name="share-outline" size={25} />
             </TouchableOpacity>
             <TouchableOpacity style={{marginLeft:'60%'}} >
             <Ionicons  style={{ paddingTop:6}} name="ellipsis-vertical" size={24} />

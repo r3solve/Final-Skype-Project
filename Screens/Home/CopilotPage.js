@@ -17,13 +17,12 @@ const db = getFirestore(app);
 
 firebase.initializeApp(firebaseConfig)
 
-const ChatDetails = ({ navigation, route }) => {
+const CopilotPage = ({ navigation, route }) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [attachedImage, setAttachedImage] = useState(null);
   const flatListRef = useRef(null);
   const [resultData, setAllData] = useState(null)
-  const { id, items} = route.params
   const { loggedInUser } = useUserStore()
   const [imageblob, setImageBlob] = useState(null)
 
@@ -31,15 +30,12 @@ const ChatDetails = ({ navigation, route }) => {
     navigation.setOptions({
       headerLeft: () => (
         <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} style={{ paddingTop: 12, margin: 4 }} />
+          <Ionicons name="arrow-back" size={24} style={{ paddingTop: 5, margin: 4 }} />
           <TouchableOpacity style={{ paddingHorizontal: 5 }} onPress={() => navigation.navigate('Profile', { username: route.params.username })}>
-            <Avatar.Image size={50} source={{ uri: route.params.profileUrl }} />
+            <Avatar.Image size={45} source={{ uri: 'https://em.jpg'}} />
           </TouchableOpacity>
         </TouchableOpacity>
       ),
-      headerTitle: items?.receiver === loggedInUser
-        ? items?.createdBy?.split("@")[0] || ''
-        : items?.receiver?.split("@")[0] || '',
       headerTitleStyle: {
         color: Colors.text_color,
         fontWeight: '200',
@@ -47,37 +43,34 @@ const ChatDetails = ({ navigation, route }) => {
       headerRight: () => (
         <View style={{ flexDirection: 'row' }}>
           <TouchableOpacity>
-            <Ionicons style={{ padding: 3, marginHorizontal: 3 }} size={30} name='videocam-outline'></Ionicons>
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Ionicons style={{ padding: 3, marginHorizontal: 3 }} size={30} name='call-outline'></Ionicons>
+            <Ionicons style={{ padding: 3, marginHorizontal: 3 }} size={30} name='save-outline'></Ionicons>
           </TouchableOpacity>
         </View>
       )
     });
-  }, [navigation, route.params?.username, items?.createdBy, items?.receiver])
+  }, [])
   
 
-  useEffect(() => {
-    const chatRef = doc(db, 'chats', id);
+//   useEffect(() => {
+//     const chatRef = doc(db, 'chats', id);
 
-    // Set up the onSnapshot listener
-    const unsub = onSnapshot(chatRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.data();
-        if (data && data.messages) {
-          setAllData(data.messages);
-        } else {
-          console.log('Messages field is missing in the document');
-        }
-      } else {
-        alert.log("Can't Load Chats");
-      }
-    });
+//     // Set up the onSnapshot listener
+//     const unsub = onSnapshot(chatRef, (snapshot) => {
+//       if (snapshot.exists()) {
+//         const data = snapshot.data();
+//         if (data && data.messages) {
+//           setAllData(data.messages);
+//         } else {
+//           console.log('Messages field is missing in the document');
+//         }
+//       } else {
+//         alert.log("Can't Load Chats");
+//       }
+//     });
 
-    // Clean up the onSnapshot listener on unmount
-    return () => unsub();
-  }, [id, resultData]); // Add chatId to dependency array to re-run the effect when chatId changes
+//     // Clean up the onSnapshot listener on unmount
+//     return () => unsub();
+//   }, [resultData]); // Add chatId to dependency array to re-run the effect when chatId changes
 
   const handleSendMessage = async () => {
     if (newMessage.trim() !== '' || attachedImage) {
@@ -180,13 +173,6 @@ const cancelImageSend = ()=> {
             </TouchableOpacity>
           </View>
         )}
-        <TouchableOpacity onPress={handleSendMessage}>
-          <Ionicons name="add-circle-outline" style={{marginHorizontal:1}} size={30} color={Colors.primary_color} />
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={handleAttachImage}>
-          <Ionicons name='film-outline' style={{marginHorizontal:1}}  size={30} color={Colors.primary_color} />
-        </TouchableOpacity>
         
         <TextInput
           style={styles.input}
@@ -268,4 +254,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ChatDetails;
+export default CopilotPage;

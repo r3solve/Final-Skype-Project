@@ -3,11 +3,12 @@ import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 import HomeScreen from './Tabs/HomeScreen';
 import ExploreScreen from './Tabs/ExploreScreen';
-import FeedScreen from './Tabs/FeedScreen';
 import SettingsScreen from './Tabs/SettingsScreen';
 import Colors from '../../constants/Colors';
+import ChannelScreen from './Tabs/ChannelScreen';
 
 const Tab = createBottomTabNavigator();
 
@@ -22,8 +23,8 @@ const HomeBase = ({navigation}) => {
                             iconName = focused ? 'chatbubble-ellipses' : 'chatbubble-outline';
                         } else if (route.name === 'Explore') {
                             iconName = focused ? 'compass' : 'compass-outline';
-                        } else if (route.name === 'Feed') {
-                            iconName = focused ? 'list' : 'list-outline';
+                        } else if (route.name === 'Channels') {
+                            iconName = focused ? 'people' : 'people-outline';
                         } else if (route.name === 'Settings') {
                             iconName = focused ? 'settings' : 'settings-outline';
                         }
@@ -45,15 +46,45 @@ const HomeBase = ({navigation}) => {
                     },
                 })}
             >
-                <Tab.Screen name="Home-Screen"   options={{ title: 'Chats', headerRight:() => (<>
-                    <TouchableOpacity onPress={()=> navigation.navigate("Find-User")} >
-                        <Ionicons style={{paddingHorizontal:12}} name='person-add-outline' size={30} ></Ionicons>
+                <Tab.Screen name="Home-Screen"   options={{ title: 'Chats', headerRight:() => (
+                <View style={{flexDirection:'row'}}>
+                    <TouchableOpacity onPress={()=> navigation.navigate('Copilot')} >
+                        <Ionicons style={{paddingHorizontal:4}} color={Colors.primary_color} name='aperture-outline' size={30} ></Ionicons>
                     </TouchableOpacity>
-                    </>), }} component={HomeScreen} />
+                    <TouchableOpacity onPress={()=> navigation.navigate("Find-User")}>
+                        <Ionicons color={'gray'} style={{paddingHorizontal:12}} name='person-add-outline' size={28} ></Ionicons>
+                    </TouchableOpacity>
+                    </View>),
+        
+                    headerTitleStyle: {
+                        fontSize:28,
+                        fontWeight:'bold'
+                    }
+                 
+                
+                }} component={HomeScreen} />
                     
-                <Tab.Screen name="Explore" component={ExploreScreen} />
-                {/* <Tab.Screen name="Feed" component={FeedScreen} /> */}
-                <Tab.Screen name="Settings" component={SettingsScreen} />
+                <Tab.Screen name="Explore"  options={{
+                    headerTitleStyle: {
+                        fontSize:28,
+                        fontWeight:'bold'
+                    }
+                }}  component={ExploreScreen} />
+                <Tab.Screen name="Channels" options={{
+                     headerTitleStyle: {
+                        fontSize:28,
+                        fontWeight:'bold'
+                    }
+                }}
+                
+                component={ChannelScreen} />
+
+                <Tab.Screen name="Settings" options={{
+                    headerStyle:
+                     {backgroundColor:Colors.background_color}}
+                     
+                     } component={SettingsScreen} />
+                    
             </Tab.Navigator>
     );
 };

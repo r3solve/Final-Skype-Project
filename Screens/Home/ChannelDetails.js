@@ -17,15 +17,16 @@ const db = getFirestore(app);
 
 firebase.initializeApp(firebaseConfig)
 
-const ChatDetails = ({ navigation, route }) => {
+const ChannelDetails = ({ navigation, route }) => {
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState('');
   const [attachedImage, setAttachedImage] = useState(null);
   const flatListRef = useRef(null);
   const [resultData, setAllData] = useState(null)
-  const { id, items} = route.params
+  const { items} = route.params
   const { loggedInUser } = useUserStore()
   const [imageblob, setImageBlob] = useState(null)
+  const [isAdmin, setIsAdmin] = useState(false)
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -47,37 +48,34 @@ const ChatDetails = ({ navigation, route }) => {
       headerRight: () => (
         <View style={{ flexDirection: 'row' }}>
           <TouchableOpacity>
-            <Ionicons style={{ padding: 3, marginHorizontal: 3 }} size={30} name='videocam-outline'></Ionicons>
-          </TouchableOpacity>
-          <TouchableOpacity>
-            <Ionicons style={{ padding: 3, marginHorizontal: 3 }} size={30} name='call-outline'></Ionicons>
+            <Ionicons style={{ padding: 3, marginHorizontal: 3 }} size={20} name='ellipsis-vertical'></Ionicons>
           </TouchableOpacity>
         </View>
       )
     });
-  }, [navigation, route.params?.username, items?.createdBy, items?.receiver])
+  }, [navigation, items?.title, items?.createdBy, items?.posts])
   
 
-  useEffect(() => {
-    const chatRef = doc(db, 'chats', id);
+//   useEffect(() => {
+//     const chatRef = doc(db, 'chats', id);
 
-    // Set up the onSnapshot listener
-    const unsub = onSnapshot(chatRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.data();
-        if (data && data.messages) {
-          setAllData(data.messages);
-        } else {
-          console.log('Messages field is missing in the document');
-        }
-      } else {
-        alert.log("Can't Load Chats");
-      }
-    });
+//     // Set up the onSnapshot listener
+//     const unsub = onSnapshot(chatRef, (snapshot) => {
+//       if (snapshot.exists()) {
+//         const data = snapshot.data();
+//         if (data && data.messages) {
+//           setAllData(data.messages);
+//         } else {
+//           console.log('Messages field is missing in the document');
+//         }
+//       } else {
+//         alert.log("Can't Load Chats");
+//       }
+//     });
 
-    // Clean up the onSnapshot listener on unmount
-    return () => unsub();
-  }, [id, resultData]); // Add chatId to dependency array to re-run the effect when chatId changes
+//     // Clean up the onSnapshot listener on unmount
+//     return () => unsub();
+//   }, [resultData]); 
 
   const handleSendMessage = async () => {
     if (newMessage.trim() !== '' || attachedImage) {
@@ -171,6 +169,8 @@ const cancelImageSend = ()=> {
         keyExtractor={(item) => item.ChatId}
         contentContainerStyle={[styles.messageList]}
       />
+
+      { isAdmin &&  
       <View style={styles.inputContainer}>
         {attachedImage && (
           <View style={styles.attachmentContainer}>
@@ -201,6 +201,9 @@ const cancelImageSend = ()=> {
           <Ionicons name="send" size={30} color={Colors.primary_color} />
         </TouchableOpacity>
         
+      </View>}
+      <View style={{backgroundColor:Colors.secodary_color_tint}} >
+        <Text style={{textAlign:'center', color:Colors.tertiary_color}} >Only Admins Can Send Messages</Text>
       </View>
     </View>
   );
@@ -268,4 +271,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ChatDetails;
+export default ChannelDetails;

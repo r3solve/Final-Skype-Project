@@ -14,6 +14,9 @@ import FindChats from './Screens/Home/FindChats';
 import ChatDetails from './Screens/Home/ChatDetails';
 import { useUserStore } from './store/UserDataStore';
 import Colors from './constants/Colors';
+import ChannelDetails from './Screens/Home/ChannelDetails';
+import CreateChannelScreen from './Screens/Home/CreateChannelScreen';
+import CopilotPage from './Screens/Home/CopilotPage';
 
 const Stack = createNativeStackNavigator();
 
@@ -25,9 +28,14 @@ export default function App() {
         headerStyle: { backgroundColor: Colors.background_color }
       }}>
         {isLoggedIn ? (
-          <Stack.Group   name='home-decendants'>
+          <Stack.Group   name='Home-Decendants'>
             <Stack.Screen name="Home" options={{ headerShown: false }} component={HomeBase} />
             <Stack.Screen name='Chat-Details' options={{ headerShown: true, title:'' }} component={ChatDetails} />
+            <Stack.Screen name='Channel-Details' options={{ headerShown: true, title:'' }}  component={ChannelDetails} />
+            <Stack.Screen name='Create-Channel' options={{title:'Create A Channel', headerTitleStyle: {
+              fontWeight:'500'
+            }}} component={CreateChannelScreen} />
+            <Stack.Screen name='Copilot' options={{title:'Cloud Copilot'}} component={CopilotPage} />
           </Stack.Group>
         ) : (
           <Stack.Group

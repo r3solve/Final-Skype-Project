@@ -35,13 +35,14 @@ const styles = StyleSheet.create({
        
     },
     profileNameText: {
-        fontSize: 14,
+        fontSize: 16,
         fontWeight: 'normal',
         color: Colors.primary_color
     },
     lastMessage: {
         fontSize: 14,
-        color: '#9ba3a8',
+        color: '#3e3f3f',
+        fontWeight:'400'
     },
     outContainer: {
         justifyContent:'center',

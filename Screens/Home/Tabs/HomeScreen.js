@@ -5,7 +5,7 @@ import Colors from '../../../constants/Colors';
 import ChatBar from '../../../Components/ChatBar';
 import { useEffect, useState } from 'react';
 import { initializeApp } from "firebase/app";
-import { getFirestore, doc, onSnapshot, collection, where, query } from "firebase/firestore";
+import { getFirestore, doc, onSnapshot, collection, where, query, orderBy } from "firebase/firestore";
 import { firebaseConfig } from '../../../Configs/firebase';
 import { Searchbar } from 'react-native-paper';
 import { useUserStore } from '../../../store/UserDataStore';
@@ -40,11 +40,12 @@ const HomeScreen = ({ navigation }) => {
   };
 
   const renderItem = ({ item }) => (
+    
     <ChatBar
       avatarUrl={item.profileUrl}
-      username={`${item.receiver}`}
-      lastMessage={item.message || ""}
-      onPress={()=> navigation.navigate('Chat-Details', {username:item.receiver, profileUrl: item.profileUrl, id:item.chatId})}
+      username={`${item.receiver === loggedInUser ? item.createdBy:item.receiver }`}
+      lastMessage={item.messages[item.messages.length - 1]?.message}
+      onPress={()=> navigation.navigate('Chat-Details', {username:item.receiver, profileUrl: item.profileUrl, id:item.chatId, items: item})}
     />
   );
 
@@ -57,7 +58,8 @@ const HomeScreen = ({ navigation }) => {
       snapshot.docs.forEach((doc) => {
         chats.push({ id: doc.id, ...doc.data() });
       });
-      setAllChats(chats);
+      const sortedChats = chats.sort((a, b) => b.updatedAt - a.updatedAt);
+      setAllChats(sortedChats);
       setFilteredChats(chats);
       setIsLoading(false);
     });
