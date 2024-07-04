@@ -27,6 +27,7 @@ const ChannelDetails = ({ navigation, route }) => {
   const { loggedInUser } = useUserStore()
   const [imageblob, setImageBlob] = useState(null)
   const [isAdmin, setIsAdmin] = useState(false)
+  const {item } = route.params
 
   useLayoutEffect(() => {
     navigation.setOptions({
@@ -53,7 +54,7 @@ const ChannelDetails = ({ navigation, route }) => {
         </View>
       )
     });
-  }, [navigation, items?.title, items?.createdBy, items?.posts])
+  }, [navigation, items?.name, items?.createdBy, items?.posts])
   
 
 //   useEffect(() => {

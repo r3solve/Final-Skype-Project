@@ -1,86 +1,92 @@
-import React, { useState } from 'react';
-import { StyleSheet, View, Text, FlatList } from 'react-native';
-import { FAB } from 'react-native-paper';
+import React, { useState, useEffect } from 'react';
+import { StyleSheet, View, Text, FlatList, ActivityIndicator } from 'react-native';
+import { FAB, Searchbar } from 'react-native-paper';
 import { useNavigation } from '@react-navigation/native';
 import AccountBar from '../../../Components/AccountBar';
 import ChannelBar from '../../../Components/ChannelBar';
+import { firebaseConfig } from '../../../Configs/firebase';
+import { initializeApp } from 'firebase/app';
+import { getFirestore,setDoc, doc, collection, onSnapshot, updateDoc, arrayUnion} from 'firebase/firestore';
+import { useUserStore } from '../../../store/UserDataStore';
+
+const app = initializeApp(firebaseConfig)
+const db = getFirestore(app)
+
+
 const ChannelScreen = () => {
-    const [channels, setChannels] = useState([
-        {
-          id: 2,
-          title: 'Cooking Recipes',
-          description: 'A channel for sharing delicious recipes.',
-          profileImage: 'https://i.pravatar.cc/150?u=fake@pravatar.com',
-          followers: 1234,
-          members: ['user1', 'user2', 'user3'],
-          posts: [
-            {
-              id: 1,
-              title: 'Homemade Pasta',
-              content: 'Learn how to make fresh pasta from scratch.',
-              createdAt: '2023-06-01T12:00:00',
-              mediaUrl:'',
-            },
-            {
-              id: 2,
-              title: 'Grilled Salmon',
-              content: 'A simple and healthy salmon recipe.',
-              createdAt: '2023-06-15T09:30:00'
-            }
-          ],
-          createdAt: '2023-05-01T00:00:00',
-          updatedAt: '2023-06-15T09:30:00',
-          creatorId: 'user123',
-          admins: ['user123', 'user456']
-        },
-        {
-          id: 3,
-          title: 'Travel Destinations',
-          description: 'Explore the world with us!',
-          profileImage: 'https://i.pravatar.cc/150?u=3',
-          followers: 5678,
-          members: ['user4', 'user5', 'user6', 'user7'],
-          posts: [
-            {
-              id: 1,
-              title: 'Top 10 Beaches in Hawaii',
-              content: 'Discover the most beautiful beaches in the Hawaiian islands.',
-              createdAt: '2023-04-20T15:00:00'
-            },
-            {
-              id: 2,
-              title: 'Hiking in the Swiss Alps',
-              content: 'Breathtaking views and challenging trails in the Swiss Alps.',
-              createdAt: '2023-05-10T11:45:00'
-            }
-          ],
-          createdAt: '2023-03-01T00:00:00',
-          updatedAt: '2023-05-10T11:45:00',
-          creatorId: 'user789',
-          admins: ['user789', 'user012']
-        }
-      ]);
+    const [searchQuery, setSearchQuery] = useState('')
+    const [allChannels, setAllChannels] = useState([])
+    const [isLoading, setIsLoading] = useState(false)
+    const [filterChannels, setFilteredChannels] = useState([])
+    const {loggedInUser} = useUserStore()
       
 
   const navigation = useNavigation();
+  
+  const handleSearch = (val) => {
+    setSearchQuery(val)
+
+  }
+
+  const handleFollow = async (id, name) => {
+      const chatRef = doc(db, 'channels', id);
+    
+    try {
+      await updateDoc(chatRef, {
+        followers: arrayUnion(loggedInUser), // Add new message to the array
+      });
+      } catch (e) { 
+        console.log('Error', e )
+        console.log(chatRef)
+        
+      }
+    }
 
   const handleFabPress = () => {
     navigation.navigate('Create-Channel');
   };
 
+  useEffect(() => {
+    setIsLoading(true)
+    const unsub = onSnapshot(collection(db, "channels"), (snapshot) => {
+      const channels = [];
+      snapshot.docs.forEach((doc) => {
+        channels.push(doc.data());
+      });
+      setAllChannels(channels);
+      setFilteredChannels(channels);
+      setIsLoading(false)
+    });
+    return () => unsub();
+  }, []);
+
+
   return (
     <View style={styles.container}>
-      {channels.length > 0 ? (
+      <Searchbar
+        placeholder="Search"
+        onChangeText={handleSearch}
+        value={{}}
+        style={{ marginHorizontal: 3,
+           marginVertical: 8,
+            backgroundColor: '#e8f3f5', 
+            height: 55
+            
+          }}
+          cursorColor={Colors.primary_color}
+        
+      />
+      {!isLoading? (
         <FlatList
-          data={channels}
-          keyExtractor={(item) => item.id.toString()}
+          data={allChannels}
+          keyExtractor={(item) => item.channelId}
           contentContainerStyle={styles.flatListContainer}
           renderItem={({ item }) => (
-            <ChannelBar item={item}  onPress={()=> navigation.navigate('Channel-Details', {item:item})} />
+            <ChannelBar item={item} followPressed={()=> handleFollow(item.chatId, item.name)}   onPress={()=> navigation.navigate('Channel-Details', {item:item})} />
           )}
         />
       ) : (
-        <Text style={styles.noDataText}>No channels available.</Text>
+        <ActivityIndicator size={40} color={Colors.primary_color} />
       )}
 
       <FAB

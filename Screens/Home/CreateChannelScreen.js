@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView } from 'react-native';
 import Colors from '../../constants/Colors';
-import { Avatar, Chip, Divider } from 'react-native-paper';
+import { Avatar, Chip, Divider, Searchbar } from 'react-native-paper';
 import { Checkbox } from 'react-native-paper';
 
-import firebase from 'firebase/compat/app';
 import { firebaseConfig } from '../../Configs/firebase';
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
+import { getFirestore,setDoc, doc, collection } from 'firebase/firestore';
+import { useUserStore } from '../../store/UserDataStore';
 
 const app = initializeApp(firebaseConfig)
 const db = getFirestore(app)
@@ -17,7 +17,9 @@ const CreateChannelScreen = () => {
   const [channelDescription, setChannelDescription] = useState('');
   const [selectedTags, setSelectedTags] = useState([]);
   const [checked, setChecked] = useState(false);
-
+  const [avatarUrl, setAvatarUrl] = useState('https://i.pravatar.cc/150?u=fake@pravatar.com')
+  const {loggedInUser} = useUserStore();
+  const [searchQuery, setSearchQuery] = useState('')
   const tags = [
     { id: 1, label: 'Education' },
     { id: 2, label: 'Food' },
@@ -40,35 +42,49 @@ const CreateChannelScreen = () => {
   };
 
   const handleCreateChannel = async  () => {
+    //Working on this side 
+    const channelId = 'channel_' + Date.now().toString();
 
-    const chatId = 'chat_' + Date.now().toString();
-    
-    const userId2 = receiver;
-    // Create the new chat document
-    const newChatRef = doc(collection(db, 'chats'), chatId);
+    const newChatRef = doc(collection(db, 'channels'), channelId);
     await setDoc(newChatRef, {
-      chatId: chatId,
-      createdBy: userId1,
-      receiver: receiver,
-      participants: [userId1, userId2],
-      messages: [],
-      profileUrl:profileUrl,
+      chatId: channelId,
+      name:channelName,
+      description:channelDescription,
+      createdBy: loggedInUser,
+      admins:[loggedInUser],
+      followers: [],
+      posts: [],
+      tags: [...selectedTags],
+      avatarUrl:avatarUrl,
       createdAt: new Date(),
-      updatedAt: new Date()
+      updatedAt: new Date(),
+      isMonetized: checked,
+      dateCreated: new Date().toLocaleString()
+    }).then(()=> {
+      setSelectedTags([])
+      setChannelDescription('')
+      setChannelName('')
+
+    }).catch(()=>{
+      alert('Can\t Create Create Channel ')
+    }).finally(()=>{
+      navigation.navigate("Channel-Details", {profileUrl: profileUrl, id:chatId, name:channelName})
+
     });
-    navigation.navigate("Chat-Details", {username:receiver, profileUrl: profileUrl, id:chatId})
+    
     // Handle channel creation logic here
-    console.log('Channel Name:', channelName);
-    console.log('Channel Description:', channelDescription);
-    console.log('Selected Tags:', selectedTags);
+    // console.log('Channel Name:', channelName);
+    // console.log('Channel Description:', channelDescription);
+    // console.log('Selected Tags:', selectedTags);
   };
 
   
 
   return (
     <View style={styles.container}>
+
       <TouchableOpacity>
-        <Avatar.Image style={{ margin: 4 }} size={100} source={{ uri: 'https://i.pravatar.cc/150?u=fake@pravatar.com' }} />
+        <Avatar.Image style={{ margin: 4 }} size={100} source={{ uri: avatarUrl }} />
       </TouchableOpacity>
       <View style={styles.inputContainer}>
         <TextInput
@@ -141,6 +157,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   inputContainer: {
+    marginVertical:8,
     marginBottom: 16,
   },
   input: {
