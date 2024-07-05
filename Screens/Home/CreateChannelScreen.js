@@ -70,7 +70,7 @@ const CreateChannelScreen = ({navigation}) => {
         description: channelDescription,
         createdBy: loggedInUser,
         admins: [loggedInUser],
-        followers: [],
+        followers: [loggedInUser],
         posts: [],
         tags: [...selectedTags],
         avatarUrl: downloadURL || '',

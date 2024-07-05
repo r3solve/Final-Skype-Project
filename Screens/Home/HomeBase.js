@@ -8,7 +8,8 @@ import HomeScreen from './Tabs/HomeScreen';
 import ExploreScreen from './Tabs/ExploreScreen';
 import SettingsScreen from './Tabs/SettingsScreen';
 import Colors from '../../constants/Colors';
-import ChannelScreen from './Tabs/ChannelScreen';
+// import ChannelScreen from './Tabs/ChannelScreen';
+import { BaseChannelsScreen } from './Tabs/ChannelScreen';
 import MaterialCommunityIcons from '@expo/vector-icons/MaterialCommunityIcons';
 const Tab = createBottomTabNavigator();
 
@@ -77,7 +78,7 @@ const HomeBase = ({navigation}) => {
                     }
                 }}
                 
-                component={ChannelScreen} />
+                component={BaseChannelsScreen} />
 
                 <Tab.Screen name="Settings" options={{
                     headerStyle:
