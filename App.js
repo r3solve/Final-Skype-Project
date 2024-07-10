@@ -22,6 +22,7 @@ const Stack = createNativeStackNavigator();
 
 export default function App() {
   const { isLoggedIn, setUserState } = useUserStore()
+  
   return (
     <NavigationContainer>
       <Stack.Navigator screenOptions={{
