@@ -7,6 +7,7 @@ import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { initializeApp } from 'firebase/app';
 import Colors from '../constants/Colors';
 import { firebaseConfig } from '../Configs/firebase';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app)
@@ -18,6 +19,23 @@ const LoginScreen = ({navigation}) => {
     const [isLoading, setLoading] = useState(false)
 
     const handleSignIn = () => {
+        const storeDataJson = async (key, value) => {
+            try {
+              const jsonValue = JSON.stringify(value);
+              await AsyncStorage.setItem(key, jsonValue);
+            } catch (e) {
+              // saving error
+            }
+        }
+
+        const storeData = async (key, value) => {
+            try {
+              await AsyncStorage.setItem(key, value);
+            } catch (e) {
+              // saving error
+            }
+          };
+
         try {
           setLoading(true);
           signInWithEmailAndPassword(auth, email, password)

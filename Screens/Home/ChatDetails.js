@@ -158,26 +158,15 @@ const cancelImageSend = ()=> {
 }
   const renderItem = ({ item }) => (
     <View style={[styles.messageContainer, item.sender === loggedInUser ? styles.sentMessage : styles.receivedMessage, ]}>
-      {/* {item.isMediaVideo ?
-      <Pressable onPress={()=>status.isPlaying ? video.current.pauseAsync() : video.current.playAsync()}>
-      <Video 
-      useNativeControls
-      style={styles.attachedImage}
-      resizeMode={ResizeMode.CONTAIN}
-      isLooping
-      onPlaybackStatusUpdate={status => setStatus(() => status)}
-      ref={video} source={{uri:item.imageUrl}} />
-      </Pressable>
-      :<Image  source={{ uri: item.imageUrl }} style={styles.attachedImage} />
-        } */}
+     
         {item.imageUrl && item.isMediaVideo &&
         
         <Pressable onPress={()=>status.isPlaying ? video.current.pauseAsync() : video.current.playAsync()}>
           <Video 
           useNativeControls
-          style={styles.attachedImage}
+          style={[styles.attachedImage]}
           resizeMode={ResizeMode.CONTAIN}
-          isLooping
+          isLooping={false}
           onPlaybackStatusUpdate={status => setStatus(() => status)}
           ref={video} source={{uri:item.imageUrl}} />
         </Pressable>
@@ -239,6 +228,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: Colors.background_color,
+    
   },
   messageList: {
     paddingVertical: 16,
