@@ -10,6 +10,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { Avatar, Badge } from 'react-native-paper';
 import Colors from '../constants/Colors';
+
+
 const ChatBar = ({username, avatarUrl, lastMessage, onPress}) => {
     const navigation = useNavigation()
     return (
@@ -18,7 +20,7 @@ const ChatBar = ({username, avatarUrl, lastMessage, onPress}) => {
                 <Avatar.Image size={60} source={{uri:avatarUrl}}   />
                 <View style={{marginHorizontal:12,paddingTop:8}} >
                     <Text style={styles.profileNameText}>{username}</Text>
-                    <Text style={styles.lastMessage}>{lastMessage}
+                    <Text style={styles.lastMessage}>{lastMessage.length > 20?lastMessage.slice(0,30)+'...':lastMessage}
                     </Text>
                 </View>
             </View>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useLayoutEffect, useRef } from 'react';
-import { StyleSheet, View, FlatList, TextInput, TouchableOpacity, Text, Image } from 'react-native';
+import { StyleSheet, View, FlatList, TextInput, TouchableOpacity, Text, Image, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import Colors from '../../constants/Colors';
@@ -11,6 +11,7 @@ import { getFirestore } from 'firebase/firestore';
 import { arrayUnion, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import { useUserStore } from '../../store/UserDataStore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { Video, ResizeMode } from 'expo-av';
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -26,14 +27,17 @@ const ChatDetails = ({ navigation, route }) => {
   const { id, items} = route.params
   const { loggedInUser } = useUserStore()
   const [imageblob, setImageBlob] = useState(null)
+  const [isVideo, setIsVideo] = useState(false)
+  const video = useRef(null);
+  const [status, setStatus] = useState({});
 
   useLayoutEffect(() => {
     navigation.setOptions({
       headerLeft: () => (
         <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => navigation.goBack()}>
-          <Ionicons name="arrow-back" size={24} style={{ paddingTop: 12, margin: 4 }} />
+          <Ionicons name="arrow-back" size={24} style={{ paddingTop: 6, margin: 4 }} />
           <TouchableOpacity style={{ paddingHorizontal: 5 }} onPress={() => navigation.navigate('Profile', { username: route.params.username })}>
-            <Avatar.Image size={50} source={{ uri: route.params.profileUrl }} />
+            <Avatar.Image size={45} source={{ uri: route.params.profileUrl }} />
           </TouchableOpacity>
         </TouchableOpacity>
       ),
@@ -46,11 +50,11 @@ const ChatDetails = ({ navigation, route }) => {
       },
       headerRight: () => (
         <View style={{ flexDirection: 'row' }}>
-          <TouchableOpacity>
-            <Ionicons style={{ padding: 3, marginHorizontal: 3 }} size={30} name='videocam-outline'></Ionicons>
+          <TouchableOpacity onPress={()=> navigation.navigate('Video-Call')} >
+            <Ionicons style={{ padding: 3, marginHorizontal: 3 }} size={28} name='videocam-outline'></Ionicons>
           </TouchableOpacity>
-          <TouchableOpacity>
-            <Ionicons style={{ padding: 3, marginHorizontal: 3 }} size={30} name='call-outline'></Ionicons>
+          <TouchableOpacity onPress={()=> navigation.navigate('Voice-Call')}>
+            <Ionicons style={{ padding: 3, marginHorizontal: 3 }} size={28} name='call-outline'></Ionicons>
           </TouchableOpacity>
         </View>
       )
@@ -99,6 +103,7 @@ const ChatDetails = ({ navigation, route }) => {
         imageUrl: downloadURL,
         sentDate: new Date().toDateString(),
         sentTime: new Date().toLocaleTimeString(),
+        isMediaVideo: isVideo
       };
 
       setNewMessage('');
@@ -133,17 +138,18 @@ const ChatDetails = ({ navigation, route }) => {
       const response = await fetch(result.assets[0].uri);
       const blob = await response.blob();
       setImageBlob(blob)
+      switch(result.assets[0].type) {
+        case 'video':
+          setIsVideo(true)
+          break;
+        case 'image':
+          setIsVideo(false)
+          break;
+       
 
-      // Get a reference to the Firebase Storage
-      // const storage = getStorage();
-      // const storageRef = ref(storage, `media/${Date.now()}`);
-
-      // Upload the image to Firebase Storage
-      // await uploadBytes(storageRef, blob);
-      // Retrieve the download URL of the uploaded image
-      // const downloadURL = await getDownloadURL(storageRef);
+      }
       setAttachedImage(result.assets[0].uri);
-      // console.log(response.url)
+    
     }
 }
 const cancelImageSend = ()=> {
@@ -151,12 +157,36 @@ const cancelImageSend = ()=> {
   setImageBlob(null)
 }
   const renderItem = ({ item }) => (
-    <View style={[styles.messageContainer, item.sender === loggedInUser ? styles.sentMessage : styles.receivedMessage]}>
-      {item.imageUrl && 
+    <View style={[styles.messageContainer, item.sender === loggedInUser ? styles.sentMessage : styles.receivedMessage, ]}>
+      {/* {item.isMediaVideo ?
+      <Pressable onPress={()=>status.isPlaying ? video.current.pauseAsync() : video.current.playAsync()}>
+      <Video 
+      useNativeControls
+      style={styles.attachedImage}
+      resizeMode={ResizeMode.CONTAIN}
+      isLooping
+      onPlaybackStatusUpdate={status => setStatus(() => status)}
+      ref={video} source={{uri:item.imageUrl}} />
+      </Pressable>
+      :<Image  source={{ uri: item.imageUrl }} style={styles.attachedImage} />
+        } */}
+        {item.imageUrl && item.isMediaVideo &&
+        
+        <Pressable onPress={()=>status.isPlaying ? video.current.pauseAsync() : video.current.playAsync()}>
+          <Video 
+          useNativeControls
+          style={styles.attachedImage}
+          resizeMode={ResizeMode.CONTAIN}
+          isLooping
+          onPlaybackStatusUpdate={status => setStatus(() => status)}
+          ref={video} source={{uri:item.imageUrl}} />
+        </Pressable>
+        }
+
+      {item.imageUrl && !item.isMediaVideo &&
       <Image  source={{ uri: item.imageUrl }} style={styles.attachedImage} />
-      
       }
-      <Text style={styles.messageText}>{item.message}</Text>
+      <Text style={[styles.messageText]}>{item.message}</Text>
       <Text style={{alignSelf:'flex-end', color:'white', fontSize:10}}>{item.sentTime}</Text>
     </View>
   );
