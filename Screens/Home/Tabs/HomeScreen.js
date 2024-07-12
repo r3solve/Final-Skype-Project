@@ -8,6 +8,7 @@ import { initializeApp } from "firebase/app";
 import { getFirestore, doc, onSnapshot, collection, where, query, orderBy } from "firebase/firestore";
 import { firebaseConfig } from '../../../Configs/firebase';
 import { Searchbar } from 'react-native-paper';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { useUserStore } from '../../../store/UserDataStore';
 
 const app = initializeApp(firebaseConfig);
@@ -43,7 +44,7 @@ const HomeScreen = ({ navigation }) => {
     
     <ChatBar
       avatarUrl={item.profileUrl}
-      username={`${item.receiver === loggedInUser ? item.createdBy:item.receiver }`}
+      username={`${item.createdBy === loggedInUser ?  item.receiver : item.createdBy}`}
       lastMessage={item.messages[item.messages.length - 1]?.message}
       onPress={()=> navigation.navigate('Chat-Details', {username:item.receiver, profileUrl: item.profileUrl, id:item.chatId, items: item})}
     />
@@ -98,7 +99,7 @@ const HomeScreen = ({ navigation }) => {
           )
         )}
         <FAB
-          icon="message"
+          icon="chat-plus"
           style={styles.fab}
           color={Colors.secodary_color_tint}
           onPress={() => navigation.navigate("Find-User")}

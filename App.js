@@ -12,6 +12,8 @@ import LoginScreen from './Screens/LoginScreen';
 import ProfileScreen from './Screens/ProfileScreen';
 import FindChats from './Screens/Home/FindChats';
 import ChatDetails from './Screens/Home/ChatDetails';
+import VoiceCallScreen from './Screens/Home/VoiceCallScreen';
+import VideoCallScreen from './Screens/Home/VideoCallScreen';
 import { useUserStore } from './store/UserDataStore';
 import Colors from './constants/Colors';
 import ChannelDetails from './Screens/Home/ChannelDetails';
@@ -36,6 +38,8 @@ export default function App() {
               fontWeight:'500'
             }}} component={CreateChannelScreen} />
             <Stack.Screen name='Copilot' options={{title:'Cloud Copilot'}} component={CopilotPage} />
+            <Stack.Screen name='Video-Call' component={VideoCallScreen} />
+            <Stack.Screen name='Voice-Call'  component={VoiceCallScreen} />
           </Stack.Group>
         ) : (
           <Stack.Group

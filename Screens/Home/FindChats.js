@@ -10,6 +10,9 @@ import AccountBar from '../../Components/AccountBar';
 import Colors from '../../constants/Colors';
 import { useUserStore } from '../../store/UserDataStore';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
