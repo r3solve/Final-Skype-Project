@@ -32,8 +32,10 @@ const RegisterScreen = ({navigation}) => {
     const [username, setUsername ] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
-    const [avatarUrl, setAvatarUrl] = useState("https://placeholder.pics/svg/120")
+    const [avatarUrl, setAvatarUrl] = useState(null)
     const [isLoading, setIsLoading] = useState(false)
+    const [imageBlob, setImageBlob] = useState(null)
+    const [localImageUrl, setLocalUrl] = useState(null)
 
     const {setUserState, setLoggedInUser} = useUserStore();
     const handleCreateAccount = async () => {
@@ -44,21 +46,31 @@ const RegisterScreen = ({navigation}) => {
             const userCredential = await createUserWithEmailAndPassword(auth, email, password);
             const user = userCredential.user;
     
+            const storage = getStorage();
+            const storageRef = ref(storage, `avatars/${Date.now()}`);
+            await uploadBytes(storageRef, imageBlob);
+            alert('Image uploaded');
+    
+            // Retrieve the download URL of the uploaded image
+            const downloadURL = await getDownloadURL(storageRef);
+            setAvatarUrl(downloadURL);
+    
             // Prepare user data for Firestore
             const userData = {
                 username: username,
                 email: email,
                 bio: 'Hey there I am on cloud Chat',
                 contacts: [],
-                profileUrl: avatarUrl,
-                status: 'online'
+                profileUrl: downloadURL,
+                status: 'online',
+                phone: ''
             };
     
             // Store user data in Firestore
-            await setDoc(doc(db, "users", user.uid), userData);
+            await setDoc(doc(db, "users", user.email), userData);
             alert('User Created');
-            setUserState(true)
-            setLoggedInUser(user.email)
+            setUserState(true);
+            setLoggedInUser(user.email);
         } catch (error) {
             const errorCode = error.code;
             const errorMessage = error.message;
@@ -72,7 +84,7 @@ const RegisterScreen = ({navigation}) => {
 
     const pickImage = async () => {
         let result = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ImagePicker.MediaTypeOptions.All,
+            mediaTypes: ImagePicker.MediaTypeOptions.Images,
             allowsEditing: true,
             aspect: [4, 3],
             quality: 1,
@@ -83,17 +95,21 @@ const RegisterScreen = ({navigation}) => {
         if (!result.canceled) {
             const response = await fetch(result.assets[0].uri);
             const blob = await response.blob();
+            if( result.assets[0].type == 'image') {
+                setImageBlob(blob)
+                setLocalUrl(result.assets[0].uri)
+            }
     
             // Get a reference to the Firebase Storage
-            const storage = getStorage();
-            const storageRef = ref(storage, `avatars/${Date.now()}`);
+            // const storage = getStorage();
+            // const storageRef = ref(storage, `avatars/${Date.now()}`);
     
-            // Upload the image to Firebase Storage
-            await uploadBytes(storageRef, blob);
-            alert('Image uploaded')
-            // Retrieve the download URL of the uploaded image
-            const downloadURL = await getDownloadURL(storageRef);
-            setAvatarUrl(downloadURL);
+            // // Upload the image to Firebase Storage
+            // await uploadBytes(storageRef, blob);
+            // alert('Image uploaded')
+            // // Retrieve the download URL of the uploaded image
+            // const downloadURL = await getDownloadURL(storageRef);
+            // setAvatarUrl(downloadURL);
         }
     };
     
@@ -106,7 +122,7 @@ const RegisterScreen = ({navigation}) => {
             <Ionicons name='chevron-back' size={40} ></Ionicons>
         </TouchableOpacity>
         <TouchableOpacity onPress={pickImage}>
-            <Avatar.Image size={120} source={{uri: avatarUrl}} />
+            <Avatar.Image size={120} source={{uri: localImageUrl}} />
             <Text style={{textAlign:'center', fontSize:20}} >Choose Image</Text>
         </TouchableOpacity>
 
