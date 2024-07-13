@@ -6,7 +6,7 @@ import AccountBar from '../../../Components/AccountBar';
 import ChannelBar from '../../../Components/ChannelBar';
 import { firebaseConfig } from '../../../Configs/firebase';
 import { initializeApp } from 'firebase/app';
-import { getFirestore, setDoc, doc, collection, onSnapshot, updateDoc, arrayUnion } from 'firebase/firestore';
+import { getFirestore, setDoc, doc, collection, onSnapshot, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { useUserStore } from '../../../store/UserDataStore';
 import Colors from '../../../constants/Colors';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
@@ -47,6 +47,19 @@ function AllChannelsScreen() {
         try {
             await updateDoc(chatRef, {
                 followers: arrayUnion(loggedInUser), // Add new message to the array
+            });
+        } catch (e) {
+            console.log('Error', e)
+            console.log(chatRef)
+        }
+    }
+
+    const handleUnFollow = async (id, name) => {
+        const chatRef = doc(db, 'channels', id);
+
+        try {
+            await updateDoc(chatRef, {
+                followers: arrayRemove(loggedInUser), // Add new message to the array
             });
         } catch (e) {
             console.log('Error', e)
@@ -98,7 +111,7 @@ function AllChannelsScreen() {
                     keyExtractor={(item) => item.channelId}
                     contentContainerStyle={styles.flatListContainer}
                     renderItem={({ item }) => (
-                        <ChannelBar item={item} followPressed={() => handleFollow(item.channelId, item.name)} onPress={() => navigation.navigate('Channel-Details', { item: item, id: item.channelId })} />
+                        <ChannelBar item={item} unfollowPressed={()=> handleUnFollow(item.channelId,item.name )}  followPressed={() => handleFollow(item.channelId, item.name)} onPress={() => navigation.navigate('Channel-Details', { item: item, id: item.channelId })} />
                     )}
                 />
             ) : (
@@ -168,6 +181,18 @@ const FollowingChannelsScreen = () => {
             console.log(chatRef)
         }
     }
+    const handleUnFollow = async (id, name) => {
+        const chatRef = doc(db, 'channels', id);
+
+        try {
+            await updateDoc(chatRef, {
+                followers: arrayRemove(loggedInUser), // Add new message to the array
+            });
+        } catch (e) {
+            console.log('Error', e)
+            console.log(chatRef)
+        }
+    }
 
     const handleFabPress = () => {
         navigation.navigate('Create-Channel');
@@ -178,10 +203,8 @@ const FollowingChannelsScreen = () => {
         const unsub = onSnapshot(collection(db, "channels"), (snapshot) => {
             const channels = [];
             snapshot.docs.forEach((doc) => {
-                
                 doc.data().followers.includes(loggedInUser) ? channels.push(doc.data()):
                 null
-            
             });
             setAllChannels(channels);
             setFilteredChannels(channels);
@@ -216,7 +239,7 @@ const FollowingChannelsScreen = () => {
                     keyExtractor={(item) => item.channelId}
                     contentContainerStyle={styles.flatListContainer}
                     renderItem={({ item }) => (
-                        <ChannelBar item={item} followPressed={() => handleFollow(item.channelId, item.name)} onPress={() => navigation.navigate('Channel-Details', { item: item, id: item.channelId })} />
+                        <ChannelBar item={item} unfollowPressed={() => handleUnFollow(item.channelId, item.name)} followPressed={() => handleFollow(item.channelId, item.name)} onPress={() => navigation.navigate('Channel-Details', { item: item, id: item.channelId })} />
                     )}
                 />
             ) : (

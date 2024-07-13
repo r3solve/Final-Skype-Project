@@ -7,12 +7,20 @@ import { Avatar } from 'react-native-paper';
 import firebase from 'firebase/compat/app';
 import { firebaseConfig } from '../../Configs/firebase';
 import { initializeApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
-import { arrayUnion, onSnapshot, doc, updateDoc } from 'firebase/firestore';
+import { getFirestore, SnapshotMetadata } from 'firebase/firestore';
+import { arrayUnion, onSnapshot, doc, updateDoc, setDoc } from 'firebase/firestore';
 import { useUserStore } from '../../store/UserDataStore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { HUGG_API } from '../../Configs/huggingface';
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
+const myKey = 'AIzaSyDG8nnWA8iqI44zas9uVbhZqz1WwW-SbcU'
+
+
+// Access your API key as an environment variable (see "Set up your API key" above)
+const genAI = new GoogleGenerativeAI(myKey);
+
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash"});
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -24,7 +32,6 @@ const CopilotPage = ({ navigation, route }) => {
   const [newMessage, setNewMessage] = useState('');
   const [attachedImage, setAttachedImage] = useState(null);
   const flatListRef = useRef(null);
-  const [resultData, setAllData] = useState(null)
   const { loggedInUser } = useUserStore()
   
   useLayoutEffect(() => {
@@ -32,56 +39,90 @@ const CopilotPage = ({ navigation, route }) => {
       headerLeft: () => (
         <TouchableOpacity style={{ flexDirection: 'row' }} onPress={() => navigation.goBack()}>
           <Ionicons name="arrow-back" size={24} style={{ paddingTop: 5, margin: 4 }} />
-          <TouchableOpacity style={{ paddingHorizontal: 5 }} onPress={() => navigation.navigate('Profile', { username: route.params.username })}>
-            <Avatar.Image size={45} source={{ uri: 'https://em.jpg'}} />
+          <TouchableOpacity style={{ paddingHorizontal: 5 }} >
+            <Avatar.Image size={45} source={require('../../assets/clout-pilot.jpg')} />
           </TouchableOpacity>
         </TouchableOpacity>
       ),
       headerTitleStyle: {
         color: Colors.text_color,
         fontWeight: '200',
+        fontSize:18,
       },
       headerRight: () => (
         <View style={{ flexDirection: 'row' }}>
           <TouchableOpacity>
-            <Ionicons style={{ padding: 3, marginHorizontal: 3 }} size={30} name='save-outline'></Ionicons>
+            <Ionicons style={{ padding: 3, marginHorizontal: 3 }} size={18} name='ellipsis-vertical'></Ionicons>
           </TouchableOpacity>
         </View>
       )
     });
   }, [])
-  
-  const inference = async (query) => {
-    fetch('https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-          'Authorization': 'Bearer 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',
-          'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-          "model": "meta-llama/Meta-Llama-3-8B-Instruct",
-          "messages": [{"role": "user", "content": `${query}`}],
-          "max_tokens": 500,
-          "stream": false
-      })
-  })
-      .then(response => response.json())
-      .then(data => console.log(data))
-      .catch(error => console.error('Error:', error));
 
-      }
+  useEffect(()=> {
+
+    const fetchOrCreate = async () => {
+      const docRef = doc(db, "copilot", loggedInUser);
+      const unsub = onSnapshot(docRef, async(snapshot)=> {
+          if (snapshot.exists()) {
+              console.log(snapshot.data())
+          }else {
+            await setDoc(doc(db, "copilot", loggedInUser), {
+              createdAt:new Date().toUTCString(),
+              messages:[]
+            });
+          }
+      })
+    
+    }
+    fetchOrCreate()
+  }, [])
+  
+  async function run(query) {
+    const prompt = `You are called cloud chat copilot, you are an assitant chatbot for the cloudchat app, answer this question. Question: ${query}`
+  
+    const result = await model.generateContent(prompt, { max_tokens: 30 });
+    const response = await result.response;
+    const text = response.text();
+    const newMessageObj = {
+      sender:'AI',
+      message: text
+    }
+    updateChat(newMessageObj)
+    setMessages(prev => [...prev, newMessageObj])
+    
+
+  }
+  
 
   const handleSendMessage = async () => {
+    let newMessageObj;
     if (newMessage.trim() !== '' ) {
-      const newMessageObj = {
+         newMessageObj = {
         sender: loggedInUser,
         message: newMessage,
         
+        
       };
-
+      updateChat(newMessageObj)
+      setMessages(prev => [...prev, newMessageObj])
+      run(newMessage)
       setNewMessage('');
-      const lastIndex = resultData.length - 1;
-      flatListRef.current.scrollToIndex({ index: lastIndex, animated: true });
+    
+      
+    }
+    
+  };
+  const updateChat = async (data) => {
+    try {
+      const docRef = doc(db, 'copilot', loggedInUser);
+      await updateDoc(docRef, {
+        messages: arrayUnion(data)
+      }
+      );
+      console.log('Chat data updated successfully!');
+    } catch (error) {
+      console.error('Error updating chat data:', error);
     }
   };
 
@@ -101,7 +142,7 @@ const CopilotPage = ({ navigation, route }) => {
     <View style={styles.container}>
       <FlatList
         ref={flatListRef}
-        data={resultData}
+        data={messages}
         renderItem={renderItem}
         keyExtractor={(item) => item.ChatId}
         contentContainerStyle={[styles.messageList]}
@@ -125,7 +166,7 @@ const CopilotPage = ({ navigation, route }) => {
           cursorColor={Colors.primary_color}
         />
         
-        <TouchableOpacity onPress={()=> inference('who is god ?')} >
+        <TouchableOpacity onPress={handleSendMessage} >
           <Ionicons name="send" size={30} color={Colors.primary_color} />
         </TouchableOpacity>
         

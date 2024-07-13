@@ -6,7 +6,7 @@ import Colors from '../constants/Colors';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useUserStore } from '../store/UserDataStore';
 
-const ChannelBar = ({item, onPress, followPressed}) => {
+const ChannelBar = ({item, onPress, followPressed, unfollowPressed}) => {
   const { loggedInUser } = useUserStore()
 
     return (
@@ -22,7 +22,7 @@ const ChannelBar = ({item, onPress, followPressed}) => {
                 <Ionicons style={{marginHorizontal:9}} name='add' size={20} color={Colors.primary} />
             </TouchableOpacity>
 
-            :<TouchableOpacity onPress={followPressed} style={{flexDirection:'row', padding:5, borderWidth:0.5, height:"40%", marginHorizontal:12,
+            :<TouchableOpacity onPress={unfollowPressed} style={{flexDirection:'row', padding:5, borderWidth:0.5, height:"40%", marginHorizontal:12,
             marginLeft:'40%'
 
             }} >
