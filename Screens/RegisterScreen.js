@@ -39,7 +39,6 @@ const RegisterScreen = ({navigation}) => {
 
     const {setUserState, setLoggedInUser} = useUserStore();
     const handleCreateAccount = async () => {
-        console.log('Create Account');
         setIsLoading(true);
         try {
             // Create user with email and password
@@ -63,7 +62,8 @@ const RegisterScreen = ({navigation}) => {
                 contacts: [],
                 profileUrl: downloadURL,
                 status: 'online',
-                phone: ''
+                phone: '',
+                birthday: ''
             };
     
             // Store user data in Firestore
@@ -100,16 +100,6 @@ const RegisterScreen = ({navigation}) => {
                 setLocalUrl(result.assets[0].uri)
             }
     
-            // Get a reference to the Firebase Storage
-            // const storage = getStorage();
-            // const storageRef = ref(storage, `avatars/${Date.now()}`);
-    
-            // // Upload the image to Firebase Storage
-            // await uploadBytes(storageRef, blob);
-            // alert('Image uploaded')
-            // // Retrieve the download URL of the uploaded image
-            // const downloadURL = await getDownloadURL(storageRef);
-            // setAvatarUrl(downloadURL);
         }
     };
     

@@ -11,6 +11,8 @@ import { getFirestore } from 'firebase/firestore';
 import { arrayUnion, onSnapshot, doc, updateDoc } from 'firebase/firestore';
 import { useUserStore } from '../../store/UserDataStore';
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { HUGG_API } from '../../Configs/huggingface';
+
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
@@ -24,8 +26,7 @@ const CopilotPage = ({ navigation, route }) => {
   const flatListRef = useRef(null);
   const [resultData, setAllData] = useState(null)
   const { loggedInUser } = useUserStore()
-  const [imageblob, setImageBlob] = useState(null)
-
+  
   useLayoutEffect(() => {
     navigation.setOptions({
       headerLeft: () => (
@@ -50,100 +51,41 @@ const CopilotPage = ({ navigation, route }) => {
     });
   }, [])
   
-
-//   useEffect(() => {
-//     const chatRef = doc(db, 'chats', id);
-
-//     // Set up the onSnapshot listener
-//     const unsub = onSnapshot(chatRef, (snapshot) => {
-//       if (snapshot.exists()) {
-//         const data = snapshot.data();
-//         if (data && data.messages) {
-//           setAllData(data.messages);
-//         } else {
-//           console.log('Messages field is missing in the document');
-//         }
-//       } else {
-//         alert.log("Can't Load Chats");
-//       }
-//     });
-
-//     // Clean up the onSnapshot listener on unmount
-//     return () => unsub();
-//   }, [resultData]); // Add chatId to dependency array to re-run the effect when chatId changes
-
-  const handleSendMessage = async () => {
-    if (newMessage.trim() !== '' || attachedImage) {
-      let downloadURL = null;
-      if (imageblob) {
-        // Upload the image to Firebase Storage
-        // const response = await fetch(attachedImage);
-        const blob = await imageblob;
-        const storage = getStorage();
-        const storageRef = ref(storage, `media/${Date.now()}`);
-        await uploadBytes(storageRef, blob);
-        downloadURL = await getDownloadURL(storageRef);
+  const inference = async (query) => {
+    fetch('https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+          'Authorization': 'Bearer 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',
+          'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+          "model": "meta-llama/Meta-Llama-3-8B-Instruct",
+          "messages": [{"role": "user", "content": `${query}`}],
+          "max_tokens": 500,
+          "stream": false
+      })
+  })
+      .then(response => response.json())
+      .then(data => console.log(data))
+      .catch(error => console.error('Error:', error));
 
       }
 
+  const handleSendMessage = async () => {
+    if (newMessage.trim() !== '' ) {
       const newMessageObj = {
         sender: loggedInUser,
         message: newMessage,
-        receiver: route.params.username,
-        imageUrl: downloadURL,
-        sentDate: new Date().toDateString(),
-        sentTime: new Date().toLocaleTimeString(),
+        
       };
 
       setNewMessage('');
-      const chatRef = doc(db, 'chats', id);
-      await updateDoc(chatRef, {
-        messages: arrayUnion(newMessageObj), // Add new message to the array
-        updatedAt: Date.now(),
-      });
-      setAttachedImage(null);
       const lastIndex = resultData.length - 1;
       flatListRef.current.scrollToIndex({ index: lastIndex, animated: true });
     }
   };
 
-  const handleAttachImage = async () => {
-    // Request camera roll permissions
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      alert('Sorry, we need camera roll permissions to make this work!');
-      return;
-    }
 
-    // Open image picker
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.All,
-      allowsEditing: true,
-      aspect: [4, 4],
-      quality: 1,
-    });
-
-    if (!result.cancelled) {
-      const response = await fetch(result.assets[0].uri);
-      const blob = await response.blob();
-      setImageBlob(blob)
-
-      // Get a reference to the Firebase Storage
-      // const storage = getStorage();
-      // const storageRef = ref(storage, `media/${Date.now()}`);
-
-      // Upload the image to Firebase Storage
-      // await uploadBytes(storageRef, blob);
-      // Retrieve the download URL of the uploaded image
-      // const downloadURL = await getDownloadURL(storageRef);
-      setAttachedImage(result.assets[0].uri);
-      // console.log(response.url)
-    }
-}
-const cancelImageSend = ()=> {
-  setAttachedImage(null)
-  setImageBlob(null)
-}
   const renderItem = ({ item }) => (
     <View style={[styles.messageContainer, item.sender === loggedInUser ? styles.sentMessage : styles.receivedMessage]}>
       {item.imageUrl && 
@@ -183,7 +125,7 @@ const cancelImageSend = ()=> {
           cursorColor={Colors.primary_color}
         />
         
-        <TouchableOpacity onPress={handleSendMessage}>
+        <TouchableOpacity onPress={()=> inference('who is god ?')} >
           <Ionicons name="send" size={30} color={Colors.primary_color} />
         </TouchableOpacity>
         

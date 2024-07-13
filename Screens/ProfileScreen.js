@@ -61,23 +61,36 @@ const ProfileScreen = ({ navigation, route }) => {
                 <Avatar.Image source={{uri:user?.profileUrl}} size={120} />
                 <Text style={{fontSize:30, fontWeight:'bold'}}>{user?.username}</Text>
             </View>
-            <TouchableOpacity style={[styles.option, styles.alignItemsCenter]}>
+            <View style={[styles.option, styles.alignItemsCenter]}>
                 <Ionicons name="mail-outline" size={24} color="black" />
                 <Text style={styles.optionName}>Email</Text>
                 <Text style={styles.optionValue}>{user?.email}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.option, styles.alignItemsCenter]}>
+            </View>
+            <View style={[styles.option, styles.alignItemsCenter]}>
                 <Ionicons name="call-outline" size={24} color="black"  />
                 <Text style={styles.optionName}>Phone</Text>
-                <Text style={styles.optionValue}>0540552725</Text>
-            </TouchableOpacity>
+                <Text style={styles.optionValue}>
+                  {user?.phone.length==0? 'No Contact':user?.phone}
+                  </Text>
+            </View>
 
-            <TouchableOpacity style={[styles.option, styles.alignItemsCenter]}>
+            <View style={[styles.option, styles.alignItemsCenter]}>
                 <Ionicons name="gift-outline" size={24} color="black" />
                 <Text style={styles.optionName}>Add birthday</Text>
-                <Text style={styles.optionValue}>24 Dec 2024</Text>
+                <Text style={styles.optionValue}>
+                {user?.birthday?.length==0? 'No Contact':user?.birthday}
+                </Text>
 
-            </TouchableOpacity>
+            </View>
+            <View style={[styles.option, styles.alignItemsCenter]}>
+                <Ionicons name="rose-outline" size={24} color="black" />
+                <Text style={styles.optionName}>Bio</Text>
+                <Text style={styles.optionValue}>
+                  {user?.bio}
+                </Text>
+
+            </View>
+
             <View style={{marginTop:40}}>
                 <Text style={{fontSize:20, fontWeight:'bold'}}>Other</Text>
 

@@ -78,6 +78,7 @@ const FindChats = ({ navigation }) => {
         }}
         username={`@${item.username}`}
         bio={item.bio}
+        user={item}
       />
     );
   };
@@ -116,7 +117,7 @@ const FindChats = ({ navigation }) => {
               contentContainerStyle={styles.flatListContainer}
             />
           ) : (
-            <Text style={{textAlign:'center', fontSize:30}}>No users found.</Text>
+            <Text style={{textAlign:'center', fontSize:20, marginVertical:18}}>No users found.</Text>
           )
         )}
       </View>

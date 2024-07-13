@@ -9,16 +9,20 @@ import {
 } from 'react-native'
 import Colors from '../constants/Colors'
 import { Avatar }from 'react-native-paper'
-const AccountBar  = ({avatarUrl, username, bio, onPress}) => {
+import { useUserStore } from '../store/UserDataStore'
+
+const AccountBar  = ({avatarUrl, username, bio, onPress, user}) => {
+    const {loggedInUser} = useUserStore()
     return (
         <TouchableOpacity style={styles.outContainer} onPress={onPress}>
             <View style={styles.chatbar} >
                 <Avatar.Image size={60} source={{uri:avatarUrl}} />
                 <View style={{marginHorizontal:12,paddingTop:8}} >
-                    <Text style={styles.profileNameText}>{username}</Text>
+                    <Text style={styles.profileNameText}>
+                        {user?.email === loggedInUser? '(You) Save Messages': user?.username}
+                        </Text>
                     <Text style={styles.lastMessage}>{bio}
                     </Text>
-
                 </View>
 
             </View>
