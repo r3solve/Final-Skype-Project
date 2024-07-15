@@ -19,6 +19,7 @@ import Colors from './constants/Colors';
 import ChannelDetails from './Screens/Home/ChannelDetails';
 import CreateChannelScreen from './Screens/Home/CreateChannelScreen';
 import CopilotPage from './Screens/Home/CopilotPage';
+import StudioScreen from './Screens/Home/StudioScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -40,6 +41,7 @@ export default function App() {
             <Stack.Screen name='Copilot' options={{title:'Cloud Copilot'}} component={CopilotPage} />
             <Stack.Screen name='Video-Call' component={VideoCallScreen} />
             <Stack.Screen name='Voice-Call'  component={VoiceCallScreen} />
+            <Stack.Screen name='Studio' component={StudioScreen} />
           </Stack.Group>
         ) : (
           <Stack.Group

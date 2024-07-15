@@ -138,6 +138,10 @@ const SettingsScreen = ({ navigation }) => {
                     <Ionicons name="share-outline" size={24} color="black" />
                     <Text style={styles.optionName}>Share Profile</Text>
                 </TouchableOpacity>
+                <TouchableOpacity onPress={()=> navigation.navigate("Studio")} style={[styles.option, styles.alignItemsCenter]}>
+                    <Ionicons name="stats-chart-outline" size={24} color="black" />
+                    <Text style={styles.optionName}>Channel Manager</Text>
+                </TouchableOpacity>
 
                
 

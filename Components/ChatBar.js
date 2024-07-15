@@ -20,6 +20,7 @@ const ChatBar = ({ username, avatarUrl, lastMessage, onPress }) => {
             <View style={styles.chatbar}>
                 <Avatar.Image size={60} source={{ uri: avatarUrl }} />
                 <View style={{ marginHorizontal: 12, paddingTop: 8 }}>
+                    
                     <Text style={styles.profileNameText}>{username}</Text>
                     {lastMessage ? (
                         <Text style={styles.lastMessage}>
@@ -42,8 +43,8 @@ const styles = StyleSheet.create({
        
     },
     profileNameText: {
-        fontSize: 16,
-        fontWeight: 'normal',
+        fontSize: 17,
+        fontWeight: 'bold',
         color: Colors.primary_color
     },
     lastMessage: {

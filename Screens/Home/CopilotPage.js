@@ -65,7 +65,7 @@ const CopilotPage = ({ navigation, route }) => {
       const docRef = doc(db, "copilot", loggedInUser);
       const unsub = onSnapshot(docRef, async(snapshot)=> {
           if (snapshot.exists()) {
-              console.log(snapshot.data())
+              setMessages(snapshot.data()?.messages)
           }else {
             await setDoc(doc(db, "copilot", loggedInUser), {
               createdAt:new Date().toUTCString(),
@@ -88,9 +88,9 @@ const CopilotPage = ({ navigation, route }) => {
       sender:'AI',
       message: text
     }
-    updateChat(newMessageObj)
     setMessages(prev => [...prev, newMessageObj])
-    
+    updateChat(newMessageObj)
+
 
   }
   
@@ -104,11 +104,11 @@ const CopilotPage = ({ navigation, route }) => {
         
         
       };
-      updateChat(newMessageObj)
       setMessages(prev => [...prev, newMessageObj])
       run(newMessage)
       setNewMessage('');
-    
+      updateChat(newMessageObj)
+
       
     }
     
