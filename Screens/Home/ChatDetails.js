@@ -53,7 +53,7 @@ const ChatDetails = ({ navigation, route }) => {
           <TouchableOpacity onPress={()=> navigation.navigate('Video-Call')} >
             <Ionicons style={{ padding: 3, marginHorizontal: 3 }} size={28} name='videocam-outline'></Ionicons>
           </TouchableOpacity>
-          <TouchableOpacity onPress={()=> navigation.navigate('Voice-Call', {avatarUrl:route.params.profileUrl})}>
+          <TouchableOpacity onPress={()=> navigation.navigate('Voice-Call', {avatarUrl:route.params.profileUrl, username:route.params.username})}>
             <Ionicons style={{ padding: 3, marginHorizontal: 3 }} size={28} name='call-outline'></Ionicons>
           </TouchableOpacity>
         </View>

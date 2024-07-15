@@ -12,18 +12,22 @@ const VoiceCallScreen = ({navigation}) => {
   const [sound, setSound] = useState();
 
   const route = useRoute()
+
   async function playSound() {
     console.log('Loading Sound');
-    const { sound } = await Audio.Sound.createAsync( require('../../assets/ringing.wav')
+    const { sound } = await Audio.Sound.createAsync(
+      require('../../assets/ringing.wav')
     );
     setSound(sound);
 
     console.log('Playing Sound');
+    await sound.setIsLoopingAsync(true); // Set the sound to loop
     await sound.playAsync();
   }
-  useEffect(()=> {
-    playSound()
-  }, [])
+
+  useEffect(() => {
+    playSound();
+  }, []);
 
   useEffect(() => {
     return sound
@@ -40,18 +44,18 @@ const VoiceCallScreen = ({navigation}) => {
     }, 1000);
 
     return () => clearInterval(interval);
-    
   }, [duration]);
 
-  const handleEndCall = () => {
+  const handleEndCall = async() => {
     setIsCallActive(false);
-    !isCallActive? navigation.goBack():null
+    await sound.stopAsync(); // Stop the sound when the call ends
+    navigation.goBack();
   };
 
   return (
     <View style={styles.container}>
       <Image source={{ uri: route.params.avatarUrl }} style={styles.profileImage} />
-      <Text style={styles.name}>John Doe</Text>
+      <Text style={styles.name}>{route.params.username}</Text>
       <Text style={styles.status}>
         {isCallActive ? `Ringing....` : 'Call Ended'}
       </Text>
