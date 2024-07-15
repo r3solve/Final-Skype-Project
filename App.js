@@ -39,8 +39,8 @@ export default function App() {
               fontWeight:'500'
             }}} component={CreateChannelScreen} />
             <Stack.Screen name='Copilot' options={{title:'Cloud Copilot'}} component={CopilotPage} />
-            <Stack.Screen name='Video-Call' component={VideoCallScreen} />
-            <Stack.Screen name='Voice-Call'  component={VoiceCallScreen} />
+            <Stack.Screen name='Video-Call' options={{headerShown:false}} component={VideoCallScreen} />
+            <Stack.Screen name='Voice-Call' options={{headerShown:false}}  component={VoiceCallScreen} />
             <Stack.Screen name='Studio' component={StudioScreen} />
           </Stack.Group>
         ) : (
