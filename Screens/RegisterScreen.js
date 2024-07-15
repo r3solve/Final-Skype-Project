@@ -36,7 +36,7 @@ const RegisterScreen = ({navigation}) => {
     const [isLoading, setIsLoading] = useState(false)
     const [imageBlob, setImageBlob] = useState(null)
     const [localImageUrl, setLocalUrl] = useState(null)
-
+    const [checked, setChecked] = useState(false)
     const {setUserState, setLoggedInUser} = useUserStore();
     const handleCreateAccount = async () => {
         setIsLoading(true);
@@ -126,8 +126,8 @@ const RegisterScreen = ({navigation}) => {
             <TextInput autoCapitalize='none' onChangeText={(text) => setPassword(text)} secureTextEntry={true} 
                 style={styles.input} placeholder='Password' >
             </TextInput>
-            <View style={{flexDirection:'row'}}>
-                
+            <View style={{flexDirection:'row', justifyContent:"center"}}>
+           
                 <Text style={{fontSize:12, paddingVertical:16, fontWeight:'100'}} >Sync contacts with servers</Text>
             </View>
             </View>
@@ -151,14 +151,13 @@ const styles = StyleSheet.create({
         backgroundColor:Colors.background_color
     },
     input: {
-        height: 45,
-        width:'95%',
+        height: 50,
+        borderColor: '#ccc',
+        borderWidth: 1,
         borderRadius: 8,
         paddingHorizontal: 10,
         marginBottom: 15,
-        backgroundColor: '#ecf1f1',
-        fontSize: 16,
-        
+        backgroundColor: '#fff',
     },
     avatar: {
         

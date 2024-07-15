@@ -17,26 +17,20 @@ firebase.initializeApp(firebaseConfig)
 
 
 function StudioScreen({navigations}) {
-    const [channels, setAllChannels] = useState([])
-    const {loggedInUser} = useUserStore()
-    useEffect(()=> {
-        const fetechChannels = async () => {
-            const chanRef = collection(db, 'channels')
-            const q = query(chanRef, where('admins', 'array-contains', loggedInUser));
-            const unsub = onSnapshot(q, (snapshot)=> {
-                const chns = []
-                snapshot.docs.forEach((res)=> {
-                    chns.push(res.data())
-                })
-                setAllChannels(chns)
-
-                
-            })
-            console.log(channels)
-        return unsub  
-        }
-        fetechChannels()
-    }, [])
+    const {loggedInUser} = useUserStore();
+    const [chans, setChannels] = useState([])
+    useEffect(() => {
+        const fetchChannels = async () => {
+          const chanRef = collection(db, 'channels');
+          const q = query(chanRef, where('createdBy', '==', loggedInUser));
+          const snapshot = await getDocs(q);
+          const chns = snapshot.docs.map((doc) => doc.data());
+          setChannels(chns)
+          console.log(chans)
+        };
+        fetchChannels();
+      }, [loggedInUser]);
+  
   return (
     <ScrollView style={styles.container}>
       <TouchableOpacity  style={[styles.option, styles.alignItemsCenter]}>
@@ -50,10 +44,12 @@ function StudioScreen({navigations}) {
                 <TouchableOpacity style={[styles.option, styles.alignItemsCenter]}>
                     <Text style={styles.optionName}>Channel Name</Text>
                     <Ionicons name="people-outline" size={24} color="black" />
+                    <Text>300</Text>
                 </TouchableOpacity>
-                <TouchableOpacity onPress={()=> navigation.navigate("Studio")} style={[styles.option, styles.alignItemsCenter]}>
+                <TouchableOpacity  style={[styles.option, styles.alignItemsCenter]}>
                     <Text style={styles.optionName}>Channel Name</Text>
                     <Ionicons name="people-outline" size={24} color="black" />
+                    <Text>2.2k</Text>
                 </TouchableOpacity>
 
             </View>

@@ -10,6 +10,7 @@ import { getFirestore, setDoc, doc, collection, onSnapshot, updateDoc, arrayUnio
 import { useUserStore } from '../../../store/UserDataStore';
 import Colors from '../../../constants/Colors';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import {Snackbar} from 'react-native-paper';
 
 const Tab = createMaterialTopTabNavigator();
 const app = initializeApp(firebaseConfig)
@@ -22,6 +23,12 @@ function AllChannelsScreen() {
     const [isLoading, setIsLoading] = useState(false)
     const [filteredChannels, setFilteredChannels] = useState([])
     const { loggedInUser } = useUserStore()
+    const [visible, setVisible] = React.useState(false);
+    const [currentName, setCurrentName] = useState('')
+
+  const onToggleSnackBar = () => setVisible(!visible);
+
+  const onDismissSnackBar = () => setVisible(false);
 
     const navigation = useNavigation();
 
@@ -43,7 +50,7 @@ function AllChannelsScreen() {
 
     const handleFollow = async (id, name) => {
         const chatRef = doc(db, 'channels', id);
-
+        setCurrentName(name)
         try {
             await updateDoc(chatRef, {
                 followers: arrayUnion(loggedInUser), // Add new message to the array
@@ -52,6 +59,7 @@ function AllChannelsScreen() {
             console.log('Error', e)
             console.log(chatRef)
         }
+        onToggleSnackBar()
     }
 
     const handleUnFollow = async (id, name) => {
@@ -124,6 +132,20 @@ function AllChannelsScreen() {
                 color="white"
                 icon={'account-multiple-plus'}
             />
+            <Snackbar
+                visible={visible}
+                onDismiss={onDismissSnackBar}
+                style={{color:Colors.primary_color}}
+                rippleColor={Colors.primary_color}
+                action={{
+                label: 'Okay',
+                onPress: () => {
+                    setCurrentName('')
+                },
+                labelStyle:{color:Colors.primary_color}
+                }}>
+                {`Following  "${currentName} "`}
+            </Snackbar>
         </View>
     );
 }
@@ -150,6 +172,12 @@ const FollowingChannelsScreen = () => {
     const [isLoading, setIsLoading] = useState(false)
     const [filteredChannels, setFilteredChannels] = useState([])
     const { loggedInUser } = useUserStore()
+    const [visible, setVisible] = React.useState(false);
+    const [currentName, setCurrentName] = useState('')
+
+    const onToggleSnackBar = () => setVisible(!visible);
+
+    const onDismissSnackBar = () => setVisible(false);
 
     const navigation = useNavigation();
 
@@ -192,6 +220,10 @@ const FollowingChannelsScreen = () => {
             console.log('Error', e)
             console.log(chatRef)
         }
+        setCurrentName(name)
+        onToggleSnackBar()
+
+        
     }
 
     const handleFabPress = () => {
@@ -252,6 +284,20 @@ const FollowingChannelsScreen = () => {
                 color="white"
                 icon={'account-multiple-plus'}
             />
+            <Snackbar
+                visible={visible}
+                onDismiss={onDismissSnackBar}
+                style={{color:Colors.primary_color}}
+                rippleColor={Colors.primary_color}
+                action={{
+                label: 'Okay',
+                onPress: () => {
+                    setCurrentName('')
+                },
+                labelStyle:{color:Colors.primary_color}
+                }}>
+                {`Unfollowed  "${currentName} "`}
+            </Snackbar>
         </View>
     );
 };
