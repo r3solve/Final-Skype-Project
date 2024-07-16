@@ -19,22 +19,10 @@ const LoginScreen = ({navigation}) => {
     const [isLoading, setLoading] = useState(false)
 
     const handleSignIn = () => {
-        const storeDataJson = async (key, value) => {
-            try {
-              const jsonValue = JSON.stringify(value);
-              await AsyncStorage.setItem(key, jsonValue);
-            } catch (e) {
-              // saving error
-            }
-        }
-
-        const storeData = async (key, value) => {
-            try {
-              await AsyncStorage.setItem(key, value);
-            } catch (e) {
-              // saving error
-            }
-          };
+      if (email.length  === 0 || password.length === 0) {
+        alert("Fill in the entries")
+        return 
+    }
 
         try {
           setLoading(true);
@@ -64,8 +52,9 @@ const LoginScreen = ({navigation}) => {
 
     return (
         <View style={styles.container}>
+            <Text style={styles.title}>Welcome Back </Text>
             <Image  style={styles.logoStyle} source={require('../assets/logo.png')} />
-            <Text style={styles.title}>Sign In</Text>
+
             <TextInput
                 style={styles.input}
                 placeholder="Email"
@@ -105,6 +94,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         marginBottom: 20,
         textAlign: 'center',
+        color:Colors.primary_color
     },
     input: {
         height: 50,
@@ -127,12 +117,13 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     signUpText: {
-        color: '#1e90ff',
+        color: Colors.primary_color,
     },
     logoStyle: {
         height: 130,
         width: 130,
-        alignSelf: 'center'
+        alignSelf: 'center',
+        marginVertical:12
     }
 });
 

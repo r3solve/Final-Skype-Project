@@ -4,14 +4,17 @@ import { getStorage } from 'firebase/storage';
 import { getFirestore } from 'firebase/firestore';
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDG7Ito5r43hysEvCaw3PkcL5DlXUra-X8",
-    authDomain: "skype-clone-72908.firebaseapp.com",
-    projectId: "skype-clone-72908",
-    storageBucket: "skype-clone-72908.appspot.com",
-    messagingSenderId: "402903961441",
-    appId: "1:402903961441:web:4667c507bd18a2721cbf20",
-    measurementId: "G-2K9W504GLL"
-  };
+
+  apiKey: "AIzaSyD0v0IO72dskh0IUSWhaMtFz4dZ4qSBxqs",
+  authDomain: "cloudchat-eb6a9.firebaseapp.com",
+  projectId: "cloudchat-eb6a9",
+  storageBucket: "cloudchat-eb6a9.appspot.com",
+  messagingSenderId: "585652609238",
+  appId: "1:585652609238:web:627a36abaf02719296e977",
+  measurementId: "G-L7J5E537MX"
+
+};
+
 
 const app = initializeApp(firebaseConfig);
 const storage = getStorage(app);
