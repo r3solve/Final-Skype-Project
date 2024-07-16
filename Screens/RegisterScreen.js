@@ -40,31 +40,34 @@ const RegisterScreen = ({navigation}) => {
     const [checked, setChecked] = useState(false)
     const {setUserState, setLoggedInUser} = useUserStore();
     const [visible, setVisible] = React.useState(false);
-    const [takenUsernames, setTakerUsernames] = useState([])
+    const [takenUsernames, setTakenUsernames] = useState([])
+    const [takenAlert, setTakenAlert] = useState(false)
     const showDialog = () => setVisible(true);
     const hideDialog = () => setVisible(false);
 
-    useEffect(()=> {
-        const fetchUsers = async() => {
-            let usernames = []
-            const querySnapshot = await getDocs(collection(db, "users"));
-            querySnapshot.forEach((doc) => {
-                // usernames.push(doc.data().username)
-                setTakerUsernames(prev => [...prev, doc.data().username])
-                
-            });
-            console.log(takenUsernames)
-        }
-    }, [])
-
+    useEffect(() => {
+        const fetchUsers = async () => {
+          const usernames = [];
+          const querySnapshot = await getDocs(collection(db, "users"));
+          querySnapshot.forEach((doc) => {
+            usernames.push(doc.data().username);
+          });
+          setTakenUsernames(usernames);
+        };
+        fetchUsers();
+      }, []);
+      
 
 
 
     const handleCreateAccount = async () => {
-
         if (!checked) {
             alert("You need to accept our terms and agreements")
             return
+        }
+        if (takenAlert) {
+            alert("Username Already taken")
+            return 
         }
 
         if (username.length === 0 || email.length  === 0 || password.length === 0) {
@@ -81,8 +84,6 @@ const RegisterScreen = ({navigation}) => {
             const storage = getStorage();
             const storageRef = ref(storage, `avatars/${Date.now()}`);
             await uploadBytes(storageRef, imageBlob);
-            alert('Image uploaded');
-    
             // Retrieve the download URL of the uploaded image
             const downloadURL = await getDownloadURL(storageRef);
             setAvatarUrl(downloadURL);
@@ -135,9 +136,14 @@ const RegisterScreen = ({navigation}) => {
     
         }
     };
-    
+    const checkTakenUsername =() =>{
+        if (takenUsernames.includes(username)) {
+            setTakenAlert(true)
+        }else {
+            setTakenAlert(false)
+        }
+    }
       
-
     return (
         <>
         <PaperProvider>
@@ -150,10 +156,10 @@ const RegisterScreen = ({navigation}) => {
             <Avatar.Image size={120} style={{backgroundColor:'gray'}} source={{uri: localImageUrl}} />
             <Text style={{textAlign:'center', fontSize:20,}} >Choose Image</Text>
         </TouchableOpacity>
-
         <View style={styles.form}>
-            <TextInput autoCapitalize='none' onChangeText={(text)=>setUsername(text)} style={styles.input} placeholder='@Username' ></TextInput>
-            
+            <TextInput autoCapitalize='none'  onChangeText={(text)=>setUsername(text)} style={styles.input} placeholder='@Username' onBlur={checkTakenUsername} ></TextInput>
+            {takenAlert && <Text style={{textAlign:'right', fontSize:12, paddingBottom:4, color:'red'}}>username  @{username}Already Taken</Text>}
+             
             <TextInput autoCapitalize='none' onChangeText={(text)=> setEmail(text)}  style={styles.input}
                 placeholder='Email Address' >
                     
