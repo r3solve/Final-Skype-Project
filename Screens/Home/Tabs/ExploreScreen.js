@@ -15,8 +15,24 @@ import Feather from '@expo/vector-icons/Feather';
 const KEY = '54c178ac258b494e80a70895aef90bc8';
 
 const ExploreScreen = () => {
-    const [articles, setArticles] = useState([]);
+    const [articleWithID, setArticles] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [likedStatus, setLikedStatus] = useState({});
+
+    const handleLike = (itemId) => {
+        setLikedStatus((prevState) => ({
+          ...prevState,
+          [itemId]: prevState[itemId] === 'like' ? null : 'like',
+        }));
+      };
+    
+      const handleDislike = (itemId) => {
+        setLikedStatus((prevState) => ({
+          ...prevState,
+          [itemId]: prevState[itemId] === 'dislike' ? null : 'dislike',
+        }));
+      };
+
 
     useEffect(() => {
         fetchNews();
@@ -26,8 +42,12 @@ const ExploreScreen = () => {
         try {
             const response = await fetch(`https://newsapi.org/v2/top-headlines?country=us&apiKey=${KEY}`);
             const data = await response.json();
-            setArticles(data.articles);
-            console.log(articles)
+            const articleWithID = data.articles.map((article, index) => {
+                article.source.id = index.toString();
+                return article;
+            })
+            setArticles(articleWithID);
+            console.log(articleWithID)
             setLoading(false);
         } catch (error) {
             console.error(error);
@@ -53,12 +73,12 @@ const ExploreScreen = () => {
         </View>
             
         <View style={{flexDirection:'row', padding:6}}>
-            <TouchableOpacity>
-                <Feather style={{margin:2, justifyContent:'center', alignContent:'center'}} name='thumbs-up' size={24}  />
+            <TouchableOpacity onPress={() => handleLike(item.source.id)}>
+                <Feather style={{margin:2, justifyContent:'center', alignContent:'center'}} name='thumbs-up' size={24} color={likedStatus[item.source.id] === 'like' ? '#39A7FF' : 'black'} />
             </TouchableOpacity>
 
-            <TouchableOpacity>
-                <Feather style={{margin:2,paddingTop:4 ,justifyContent:'center', alignContent:'center'}}  name="thumbs-down" size={24}  />
+            <TouchableOpacity onPress={() => handleDislike(item.source.id)}>
+                <Feather style={{margin:2,paddingTop:4 ,justifyContent:'center', alignContent:'center'}}  name="thumbs-down" size={24} color={likedStatus[item.source.id] === 'dislike' ? '#39A7FF' : 'black'} />
             </TouchableOpacity>
 
             <TouchableOpacity>
@@ -78,7 +98,7 @@ const ExploreScreen = () => {
                 <ActivityIndicator size="large" color={Colors.primary_color} />
             ) : (
                 <FlatList
-                    data={articles}
+                    data={articleWithID}
                     renderItem={renderItem}
                     keyExtractor={(item, index) => index.toString()}
                 />
